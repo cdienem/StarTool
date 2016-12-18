@@ -1,13 +1,14 @@
 #StarTool
 ##Syntax
 ###General usage/Input
-python startool.py [inputfiles] [selectors/editors] [output]
-pyton startool.py a_file.star --select _rlnVoltage=300 --write_selection selection.star
+`python startool.py [inputfiles] [selectors/editors] [output]`
+Example: `python startool.py a_file.star --select _rlnVoltage=300 --write_selection selection.star`
+
 Multiple files can be loaded by comma separation. The program internally will create tables with the
 scheme ‘starfilename_tablename’.
 
 ###Information
---info
+`--info`
 Prints the current starfiles/tables loaded and their labels and record numbers. This should always be
 used at the beginning to get an overview what data you actually have loaded.
 --show
