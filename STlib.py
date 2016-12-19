@@ -112,7 +112,7 @@ class StarTool:
 	# Creates the given table and fills it with data (overrides existing ones)
 		c = self.db.cursor()
 		fname = starfilename.split("/")[-1]
-		fanme = fname.split(".")
+		fname = fname.split(".")
 		tname = fname[0]+"_"+name
 		self.STARTABLES[starfilename].append(tname)
 		# go through first row and determine data types
