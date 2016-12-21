@@ -131,7 +131,6 @@ class StarTool:
 		for row in data:
 			c.execute("INSERT INTO "+tname+" VALUES ("+number+")",row)
 		self.db.commit()
-		print self.STARTABLES
 
 
 	def isReal(self, value):
