@@ -360,9 +360,19 @@ class StarTool:
 		if table == self.CURRENT:
 			self.releaseTable()
 
+	def getRawTablename(self,table):
+		for star in self.STARTABLES:
+			if table in self.STARTABLES[star]:
+				n = star.replace(".star","")
+				if re.search(n,self.CURRENT) != None:
+					name = self.CURRENT.replace(n+"_","")
+				else:
+					name = "data_"+self.CURRENT
+		return name
+
 	def mergeStar(self,starfile):
 		# merges all starfiles currently read 
-		# they should only consist of one table each
+		# they should only consist of one table each with the same name
 
 		# collect tables of mergable starfiles
 		# collect their labels
@@ -372,30 +382,37 @@ class StarTool:
 
 		tables = []
 		labels = []
+		tab = ""
 		for star in self.STARTABLES:
 			if len(self.STARTABLES[star]) == 1:
-				tables.append(self.STARTABLES[star][0])
-				if len(labels) == 0:
-					labels = self.getLabels(self.STARTABLES[star][0])
+				
+				if tab == "":
+					tab = self.getRawTablename(self.STARTABLES[star][0])
+					tables.append(self.STARTABLES[star][0])
 				else:
-					labels = list(set(labels) & set(self.getLabels(self.STARTABLES[star][0])))
+					if self.getRawTablename(self.STARTABLES[star][0]) == tab:
+						tables.append(self.STARTABLES[star][0])
+						if len(labels) == 0:
+							labels = self.getLabels(self.STARTABLES[star][0])
+						else:
+							labels = list(set(labels) & set(self.getLabels(self.STARTABLES[star][0])))
 		
 		c = self.db.cursor()
-		c.execute("CREATE TEMPORARY TABLE tmp("+",".join(labels)+")")
+		c.execute("CREATE TEMPORARY TABLE tmp_"+tab+"("+",".join(labels)+")")
 		self.db.commit()
 		for t in tables:
-			c.execute("INSERT INTO tmp SELECT "+",".join(labels)+" FROM "+t)
+			c.execute("INSERT INTO tmp_"+tab+" SELECT "+",".join(labels)+" FROM "+t)
 			self.db.commit()
 		bak_cur = self.CURRENT
 		bak_que = self.QUERY
-		self.CURRENT = "tmp"
+		self.CURRENT = "tmp_"+tab
 		self.QUERY = ["SELECT * FROM ?"]
-		self.STARTABLES["tmp"] = ["tmp"]
+		self.STARTABLES["tmp"] = ["tmp_"+tab]
 		self.writeSelection(starfile)
 		self.CURRENT = bak_cur
 		self.QUERY = bak_que
 		del(self.STARTABLES["tmp"])
-		c.execute("DROP TABLE tmp")
+		c.execute("DROP TABLE tmp_"+tab)
 		self.db.commit()
 
 
