@@ -1,7 +1,7 @@
 #!bin/python
 import sqlite3, re, sys, time
 class StarTool:
-	# This stores the subqueries from all calles select statements
+	# This stores the subqueries from all called select statements
 	QUERY = []
 
 	# This holds the current table in use
@@ -9,7 +9,6 @@ class StarTool:
 
 	# This holds the starfile-table associations
 	# dict = { "tablename" : "starfilename", ... }
-	# When renamed, the dict[tablename] = newname can be used
 	STARTABLES =  {}
 	
 	def __init__(self, obj):
@@ -373,35 +372,41 @@ class StarTool:
 	def mergeStar(self,starfile):
 		# merges all starfiles currently read 
 		# they should only consist of one table each with the same name
-
-		# collect tables of mergable starfiles
-		# collect their labels
-		# create a minimal subset of labels
-		# create tmp table, put all data there
-		# hijack write_selection to write this table
-
 		tables = []
 		labels = []
 		tab = ""
+		# collect tables of mergable starfiles
 		for star in self.STARTABLES:
 			if len(self.STARTABLES[star]) == 1:
 				
 				if tab == "":
 					tab = self.getRawTablename(self.STARTABLES[star][0])
 					tables.append(self.STARTABLES[star][0])
+					labels.append(self.getLabels(self.STARTABLES[star][0]))
 				else:
+					# collect their labels if their raw tables mattch
 					if self.getRawTablename(self.STARTABLES[star][0]) == tab:
 						tables.append(self.STARTABLES[star][0])
-						if len(labels) == 0:
-							labels = self.getLabels(self.STARTABLES[star][0])
-						else:
-							labels = list(set(labels) & set(self.getLabels(self.STARTABLES[star][0])))
-		
+						labels.append(self.getLabels(self.STARTABLES[star][0]))
+		# manually calculate the intersection of all lable lists stored in labels
+		m = 0
+		labels_intersect = []
+		for l in labels[0]:
+			for labelset in labels:
+				if l in labelset:
+					m = m+1
+			if m == len(labels):
+				labels_intersect.append(l)
+			m = 0
+
+
+		# create tmp table, put all data there
+		# hijack write_selection to write this table
 		c = self.db.cursor()
-		c.execute("CREATE TEMPORARY TABLE tmp_"+tab+"("+",".join(labels)+")")
+		c.execute("CREATE TEMPORARY TABLE tmp_"+tab+"("+",".join(labels_intersect)+")")
 		self.db.commit()
 		for t in tables:
-			c.execute("INSERT INTO tmp_"+tab+" SELECT "+",".join(labels)+" FROM "+t)
+			c.execute("INSERT INTO tmp_"+tab+" SELECT "+",".join(labels_intersect)+" FROM "+t)
 			self.db.commit()
 		bak_cur = self.CURRENT
 		bak_que = self.QUERY

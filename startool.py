@@ -63,7 +63,7 @@ args = parser.parse_args()
 # Load the input file(s) and store in memory if not specified otherwise
 # If there is the location specified, split it
 
-print "### StarTool 1.0 (by Chris) ###"
+print "### StarTool 1.1 (by Chris) ###"
 
 if ":" in args.i:
 	part = args.i.split(":")
@@ -322,17 +322,11 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
-# - if select is used, the <>=!= and so on cause trouble on the commandline...
-#	-> works if escaped :(
 # - after merging, the labels are not sorted anymore (becasue of the sets?)
 
 # Todo:
 # - improve the show screen -> only columns!
 # - implement merge_clean function (checks for duplicates before insert into tmp)
-
-
-# - test test select_fancy more deeply
-# - test replace_star
 
 # Notes: 
 # >replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
