@@ -13,6 +13,7 @@ In order to make use of faster data handling, one can also use
 `python startool.py example.star:example.db`
 
 to load the STAR file into a local data base file. Changes made by editors will be directly affect that data base file.
+Remember to remove that database file if you want to start over with the original data from your .STAR file.
 
 ###Information
 `--info`
