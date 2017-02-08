@@ -1,4 +1,17 @@
 #StarTool
+##Setup
+
+### Unix based systems (including the partially eaten fruit)
+
+Extract the two files `startool.py` and `STLib.py` to your location of choice.
+Run the Program as `python /path/toStarTool/startool.py`.
+
+In case you want to have the tool available system wide, use a shell alias like `alias stool="python /path/to/StarTool/startool.py $@"`.
+
+### Windows
+
+Coming soon...
+
 ##Syntax
 ###General usage/Input
 `python startool.py [inputfiles] [selectors/editors] [output]`
