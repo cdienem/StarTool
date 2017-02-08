@@ -8,15 +8,23 @@ class StarTool:
 	CURRENT = ""
 
 	# This holds the starfile-table associations
-	# dict = { "tablename" : "starfilename", ... }
+	# dict = { "starfilename" : ["table1", ...] }
 	STARTABLES =  {}
 	
-	def __init__(self, obj):
+	def __init__(self, obj, fi=""):
 	# Creates a DB (either memory or as a file)
 		if obj == "mem":
 			self.db = sqlite3.connect(':memory:')
-		else:
+		else:			
 			self.db = sqlite3.connect(obj)
+			# Create STARTABLES
+			c = self.db.cursor()
+			c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+			tables = c.fetchall()
+			ret = []
+			self.STARTABLES[fi] = []
+			for t in tables:
+				self.STARTABLES[fi].append(t[0])
 		self.db.create_function("REGEXP", 2, self.regexp)
 		self.db.create_function('replace',3,self.preg_replace)
 

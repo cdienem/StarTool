@@ -70,22 +70,41 @@ if ":" in args.i:
 	if part[1] == "mem":
 		print "Starting StarTool in memory\n"
 		stardb = STlib.StarTool("mem")
+		# Get filenames to load
+		for fil in part[0].split(","):
+			print "Loading "+fil+"..."
+			if os.path.isfile(fil):
+				stardb.star2db(fil)
+			else:
+				print "File "+fil+" does not exist.\n"
 	else:
 		print "Starting StarTool with local DB ("+part[1]+")\n"
-		stardb = STlib.StarTool(part[1])
+		make="no"
+		if not os.path.isfile(part[1]) or os.stat(part[1]).st_size == 0:
+			make = "yes"
+		stardb = STlib.StarTool(part[1], part[0])
+		if make == "yes":
+			for fil in part[0].split(","):
+				print "Loading "+fil+"..."
+				if os.path.isfile(fil):
+					stardb.star2db(fil)
+				else:
+					print "File "+fil+" does not exist.\n"
+			
 else:
 	print "Starting StarTool in memory\n"
 	stardb = STlib.StarTool("mem")
 	part = []
 	part.append(args.i)
+	# Get filenames to load
+	for fil in part[0].split(","):
+		print "Loading "+fil+"..."
+		if os.path.isfile(fil):
+			stardb.star2db(fil)
+		else:
+			print "File "+fil+" does not exist.\n"
 
-# Get filenames to load
-for fil in part[0].split(","):
-	print "Loading "+fil+"..."
-	if os.path.isfile(fil):
-		stardb.star2db(fil)
-	else:
-		print "File "+fil+" does not exist.\n"
+
 
 # Check if there is only one table and use it
 if len(stardb.getTables()) == 1:
