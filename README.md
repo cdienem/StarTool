@@ -8,6 +8,12 @@ Example: `python startool.py a_file.star --select _rlnVoltage=300 --write_select
 Multiple files can be loaded by comma separation. The program internally will create tables with the
 scheme ‘starfilename_tablename’.
 
+In order to make use of faster data handling, one can also use
+
+`python startool.py example.star:example.db`
+
+to load the STAR file into a local data base file. Changes made by editors will be directly affect that data base file.
+
 ###Information
 `--info`
 
