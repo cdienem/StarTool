@@ -12,6 +12,10 @@ In case you want to have the tool available system wide, use a shell alias like 
 
 Coming soon...
 
+##Known Issues
+
+- STAR files that start with a number in the filename will make the program crash (e.g 3drefine_resilt.star). Will be fixed soon.
+
 ##Syntax
 ###General usage/Input
 `python startool.py [inputfiles] [selectors/editors] [output]`
