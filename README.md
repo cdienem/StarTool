@@ -1,6 +1,8 @@
 #StarTool
 ##Setup
 
+StarTool requires Python 2.7.
+
 ### Unix based systems (including the partially eaten fruit)
 
 Extract the two files `startool.py` and `STLib.py` to your location of choice.
