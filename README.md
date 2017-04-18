@@ -1,5 +1,5 @@
-#StarTool
-##Setup
+# StarTool
+## Setup
 
 StarTool requires Python 2.7.
 
@@ -14,12 +14,12 @@ In case you want to have the tool available system wide, use a shell alias like 
 
 Coming soon...
 
-##Known Issues
+## Known Issues
 
 - STAR files that start with a number in the filename will make the program crash (e.g 3drefine_resilt.star). Will be fixed soon.
 
-##Syntax
-###General usage/Input
+## Syntax
+### General usage/Input
 `python startool.py [inputfiles] [selectors/editors] [output]`
 
 Example: `python startool.py a_file.star --select _rlnVoltage=300 --write_selection selection.star`
@@ -34,7 +34,7 @@ In order to make use of faster data handling, one can also use
 to load the STAR file into a local data base file. Changes made by editors will be directly affect that data base file.
 Remember to remove that database file if you want to start over with the original data from your .STAR file.
 
-###Information
+### Information
 `--info`
 
 Prints the current starfiles/tables loaded and their labels and record numbers. This should always be
@@ -43,7 +43,7 @@ used at the beginning to get an overview what data you actually have loaded.
 `--show`
 
 Prints the current content of the table in use. Selectors are applied.
-###Selectors
+### Selectors
 `--use [ tablename ]`
 
 Defines, which table is used for subsequent operations. This must be used, if multiple data tables are
@@ -107,7 +107,7 @@ Example: `--subset 3:244`
 
 Will select data entries 3-244 (including 3 and 244).
 
-###Global Editors (ignore --select*, --sort, --tros, --subset statements)
+### Global Editors (ignore --select*, --sort, --tros, --subset statements)
 
 `--add_col [ _rlnNewLabel ]`
 
@@ -130,7 +130,7 @@ tors are reset.
 
 Renames the current table in use to tablenameNew.
 
-###Local Editors (work on current selection)
+### Local Editors (work on current selection)
 
 `--delete`
 
@@ -154,7 +154,7 @@ Replaces the values of the specified column with the values from reference.star.
 that match by the most recently selected column (consider the use of `--select _rlnLabel=*` to
 avoid unexpected behavior). The reference star-file should only contain one data table.
 
-###Merging operations
+### Merging operations
 
 `--merge [outputfile.star]`
 
@@ -162,7 +162,7 @@ Merges all currently loaded starfiles into outputfile.star. Only merges STAR-fil
 data table. Columns that do not overlap between all merged STAR-files will be dropped (including
 data!).
 
-###Output
+### Output
 
 `--write_selection [ outputfilename.star ]`
 
@@ -178,7 +178,7 @@ Writes all tables belonging to the STAR-file which the current table is part of.
 individual tables by editor methods will be written (selection will be released before writing). If only
 specific tables or subsets should be written, you may use `--use` and write it as a selection with `--write_selection`.
 
-###Special
+### Special
 
 `--query [ SQLite-query ]`
 
