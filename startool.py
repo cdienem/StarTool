@@ -19,6 +19,7 @@ parser.add_argument('i', action='store')
 
 parser.add_argument('--info', action=store_ordered, nargs='?')
 parser.add_argument('--show', action=store_ordered, nargs='?')
+parser.add_argument('--debug', action=store_ordered, nargs='?')
 
 #Selectors
 parser.add_argument('--use', action=store_ordered)
@@ -157,6 +158,9 @@ if hasattr(args, "ordered_args"):
 			else:
 				print "Cannot delete '"+cmd[1]+"' because it does not exist."
 
+		elif cmd[0] == "debug":
+			# prints some debug information
+			stardb.debug()
 		else:
 			# go here with comands that have restrictions
 			# Methods that need a table selected
@@ -234,16 +238,18 @@ if hasattr(args, "ordered_args"):
 						match = re.search(pat,cmd[1])
 						if match != None:
 							col = "_rln"+match.group(1)
-							op = match.group(2)
-							val = match.group(3)
-							stardb.select(col, op, val)
+							if col in stardb.getLabels():
+								op = match.group(2)
+								val = match.group(3)
+								stardb.select(col, op, val)
+							else:
+								print "Column "+col+" does not exist."
 						else:
-							print "Your input is malformed (--select)"
+							print "Your input is malformed. Please add a valid operator (--select)."
 
 				elif cmd[0] == "select_regex":
 					# _rlnLabel='regex'
 					# _rlnLabel=regexp
-					# Trim away potential ''
 					if cmd[1] != None and cmd[1].split("=")[0] in stardb.getLabels() and cmd[1].split("=")[1] != "":
 						com = cmd[1].split("=")
 						stardb.select_regex(com[0], com[1])
