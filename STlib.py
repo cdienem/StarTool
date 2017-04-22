@@ -204,6 +204,7 @@ class StarTool:
 		return self.CURRENT
 
 	def debug(self):
+		print "CURRENT: "+self.CURRENT
 		print "Query: "+self.assembleSelector()
 		print "STARTABLES: "
 		print self.STARTABLES
