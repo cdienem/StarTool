@@ -16,7 +16,7 @@ Coming soon...
 
 ## Known Issues
 
-- STAR files that start with a number in the filename will make the program crash (e.g 3drefine_resilt.star). Will be fixed soon.
+None so far. If you encounter any issues, feel free to contact me.
 
 ## Syntax
 ### General usage/Input
