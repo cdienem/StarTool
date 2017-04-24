@@ -73,59 +73,59 @@ else:
 # Load the input file(s) and store in memory if not specified otherwise
 # If there is the location specified, split it
 
-print "### StarTool "+version+" (by Chris) ###"
+stardb.out( "### StarTool "+version+" (by Chris) ###")
 if ":" in args.inputfile:
 	part = args.inputfile.split(":")
 	if part[1] == "mem":
-		print "Starting StarTool in memory\n"
+		stardb.out( "Starting StarTool in memory\n")
 		stardb.createDB("mem")
 		# Get filenames to load
 		for fil in part[0].split(","):
-			print "Loading "+fil+"..."
+			stardb.out( "Loading "+fil+"...")
 			if os.path.isfile(fil):
 				stardb.star2db(fil)
 			else:
-				print "File "+fil+" does not exist.\n"
+				stardb.out( "File "+fil+" does not exist.\n")
 	else:
-		print "Starting StarTool with local DB ("+part[1]+")\n"
+		stardb.out( "Starting StarTool with local DB ("+part[1]+")\n")
 		make="no"
 		if not os.path.isfile(part[1]) or os.stat(part[1]).st_size == 0:
 			make = "yes"
 		stardb.createDB(part[1], part[0])
 		if make == "yes":
 			for fil in part[0].split(","):
-				print "Loading "+fil+"..."
+				stardb.out( "Loading "+fil+"...")
 				if os.path.isfile(fil):
 					stardb.star2db(fil)
 				else:
-					print "File "+fil+" does not exist.\n"
+					stardb.out( "File "+fil+" does not exist.\n")
 			
 else:
-	print "Starting StarTool in memory\n"
+	stardb.out( "Starting StarTool in memory\n")
 	stardb.createDB("mem")
 	part = []
 	part.append(args.inputfile)
 	# Get filenames to load
 	for fil in part[0].split(","):
-		print "Loading "+fil+"..."
+		stardb.out( "Loading "+fil+"...")
 		if os.path.isfile(fil):
 			stardb.star2db(fil)
 		else:
-			print "File "+fil+" does not exist.\n"
+			stardb.out( "File "+fil+" does not exist.\n")
 
 
 
 # Check if there is only one table and use it
 if len(stardb.getTables()) == 1:
 	stardb.useTable(stardb.getTables()[0])
-	print "\nOnly one input table read, using "+stardb.getTables()[0]
+	stardb.out( "\nOnly one input table read, using "+stardb.getTables()[0])
 
 # Check if optional ordered commands were given
 if hasattr(args, "ordered_args"):
 # Walk through commands and do 
 	for cmd in args.ordered_args:
 # Methods without restrictions
-		print "\nEXECUTE: --"+str(cmd[0])+" "+str(cmd[1]).replace("None","")
+		stardb.out( "\nEXECUTE: --"+str(cmd[0])+" "+str(cmd[1]).replace("None",""))
 		if cmd[0] == "info":
 			# None
 			stardb.info()
@@ -135,7 +135,7 @@ if hasattr(args, "ordered_args"):
 			if cmd[1] in stardb.getTables():
 				stardb.useTable(cmd[1])
 			else:
-				print cmd[1]+" does not exist..."
+				stardb.out( cmd[1]+" does not exist...")
 		elif cmd[0] == "deselect":
 			# none
 			stardb.deselect()
@@ -143,20 +143,20 @@ if hasattr(args, "ordered_args"):
 		elif cmd[0] == "merge":
 			# starfilename.star
 			if os.path.isfile(cmd[1]):
-				print "The file '"+str(cmd[1])+"' already exists."
+				stardb.out( "The file '"+str(cmd[1])+"' already exists.")
 				ans = raw_input("Do you want to override (y/n)?")
 				if ans == "y":
-					print "Overriding the file."
+					stardb.out( "Overriding the file.")
 					stardb.mergeStar(cmd[1])
 				else:
-					print "Not overriding."
+					stardb.out( "Not overriding.")
 			else:
 				stardb.mergeStar(cmd[1])
 
 		elif cmd[0] == "query":
 			# just accept it here
 			stardb.query(cmd[1])
-			print "Executing custom query ('"+cmd[1]+"')..."
+			stardb.out( "Executing custom query ('"+cmd[1]+"')...")
 
 		elif cmd[0] == "delete_table":
 			# None
@@ -164,7 +164,7 @@ if hasattr(args, "ordered_args"):
 			if cmd[1] in stardb.getTables():
 				stardb.removeTable(cmd[1])
 			else:
-				print "Cannot delete '"+cmd[1]+"' because it does not exist."
+				stardb.out( "Cannot delete '"+cmd[1]+"' because it does not exist.")
 
 		elif cmd[0] == "debug":
 			# prints some debug information
@@ -186,14 +186,14 @@ if hasattr(args, "ordered_args"):
 					if cmd[1] not in stardb.getLabels():
 						stardb.addCol(cmd[1])
 					else:
-						print "Column '"+cmd[1]+"' already exists."
+						stardb.out( "Column '"+cmd[1]+"' already exists.")
 
 				elif cmd[0] == "delete_col":
 					# _rlnLabel
 					if cmd[1] in stardb.getLabels():
 						stardb.deleteCol(cmd[1])
 					else:
-						print "Cannot delete column '"+cmd[1]+"' because it does not exist.\n"
+						stardb.out( "Cannot delete column '"+cmd[1]+"' because it does not exist.\n")
 
 				elif cmd[0] == "rename_col":
 					#_rlnLabelOld=_rlnLabelNew			
@@ -203,9 +203,9 @@ if hasattr(args, "ordered_args"):
 						if old in stardb.getLabels() and new not in stardb.getLabels():
 							stardb.renameCol(old, new)
 						else:
-							print "Cannot rename '"+old+"' to '"+new+"' because it either does not exist or the new name is already taken.\n"
+							stardb.out( "Cannot rename '"+old+"' to '"+new+"' because it either does not exist or the new name is already taken.\n")
 					else:
-						print "The input is malformed (--rename).\n"
+						stardb.out( "The input is malformed (--rename).\n")
 
 				
 				elif cmd[0] == "sort":
@@ -213,14 +213,14 @@ if hasattr(args, "ordered_args"):
 					if cmd[1] in stardb.getLabels():
 						stardb.sortCol(cmd[1])
 					else:
-						print "Column "+cmd[1]+" does not exist."
+						stardb.out( "Column "+cmd[1]+" does not exist.")
 
 				elif cmd[0] == "tros":
 					# _rlnLabel
 					if cmd[1] in stardb.getLabels():
 						stardb.trosCol(cmd[1])
 					else:
-						print "Column "+cmd[1]+" does not exist."
+						stardb.out( "Column "+cmd[1]+" does not exist.")
 					
 				elif cmd[0] == "subset":
 					# 1:100
@@ -228,14 +228,14 @@ if hasattr(args, "ordered_args"):
 					if res != None:
 						stardb.subset([int(res.group(1)),int(res.group(2))])
 					else:
-						print "Your input is malformed (--subset)."
+						stardb.out( "Your input is malformed (--subset).")
 
 				elif cmd[0] == "rename_table":
 					# TablenameNew
 					if cmd[1] not in stardb.getTables():					
 						stardb.renameTable(cmd[1])
 					else:
-						print "Cannot rename '"+stardb.getCurrent()+"' to '"+cmd[1]+"' because the new name is already taken.\n"
+						stardb.out( "Cannot rename '"+stardb.getCurrent()+"' to '"+cmd[1]+"' because the new name is already taken.\n")
 
 				elif cmd[0] == "select":
 					# _rlnLabel <=|>=|<|>|!=|= value
@@ -251,9 +251,9 @@ if hasattr(args, "ordered_args"):
 								val = match.group(3)
 								stardb.select(col, op, val)
 							else:
-								print "Column "+col+" does not exist."
+								stardb.out( "Column "+col+" does not exist.")
 						else:
-							print "Your input is malformed. Please add a valid operator (--select)."
+							stardb.out( "Your input is malformed. Please add a valid operator (--select).")
 
 				elif cmd[0] == "select_regex":
 					# _rlnLabel='regex'
@@ -262,7 +262,7 @@ if hasattr(args, "ordered_args"):
 						com = cmd[1].split("=")
 						stardb.select_regex(com[0], com[1])
 					else:
-						print "Your input is malformed (--select_regex)"
+						stardb.out( "Your input is malformed (--select_regex).")
 
 				elif cmd[0] == "select_star":
 					# _rlnLabel=ref.star
@@ -270,7 +270,7 @@ if hasattr(args, "ordered_args"):
 						com = cmd[1].split("=")
 						stardb.select_star(com[1],com[0])
 					else:
-						print "Your input is malformed (--select_star)"
+						stardb.out( "Your input is malformed (--select_star).")
 
 				elif cmd[0] == "select_fancy":
 					# _rlnLabelA,_rlnLabelB=ref.star[variationA,variationB]
@@ -286,7 +286,7 @@ if hasattr(args, "ordered_args"):
 						varia = match.group(4).split(",")
 						stardb.select_fancy(star,lab,varia)
 					else:
-						print "Your input is malformed (--select_fancy)"
+						stardb.out( "Your input is malformed (--select_fancy).")
 
 				elif cmd[0] == "replace":
 					# _rlnLabel=valueABC
@@ -294,7 +294,7 @@ if hasattr(args, "ordered_args"):
 					if com[0] in stardb.getLabels():
 						stardb.replace(com[0],com[1])
 					else:
-						print "Column "+com[0]+" does not exist (--replace)"
+						stardb.out( "Column "+com[0]+" does not exist (--replace).")
 
 				elif cmd[0] == "replace_regex":
 					# _rlnLabel=search%replace
@@ -303,8 +303,7 @@ if hasattr(args, "ordered_args"):
 						pat = com[1].split("%")
 						stardb.replace_regex(com[0],pat[0],pat[1])
 					else:
-						print "Column "+com[0]+" does not exist (--replace_regex)"
-					pass
+						stardb.out( "Column "+com[0]+" does not exist (--replace_regex).")
 
 				elif cmd[0] == "replace_star":
 					# _rlnLabel=ref.star
@@ -312,7 +311,7 @@ if hasattr(args, "ordered_args"):
 					if com[0] in stardb.getLabels() and os.path.isfile(com[1]):
 						stardb.replace_star(com[0],com[1])
 					else:
-						print "Column "+getCurrent()+"."+com[0]+" does not exist (--replace_star)"
+						stardb.out( "Column "+getCurrent()+"."+com[0]+" does not exist (--replace_star).")
 
 				elif cmd[0] == "delete":#
 					# None, calls release after execution
@@ -324,29 +323,29 @@ if hasattr(args, "ordered_args"):
 					# outputstar.star
 					# Needs a table selected
 					if os.path.isfile(cmd[1]):
-						print "The file '"+str(cmd[1])+"' already exists."
+						stardb.out( "The file '"+str(cmd[1])+"' already exists.")
 						ans = raw_input("Do you want to override (y/n)?")
 						if ans == "y":
-							print "Overriding the file."
+							stardb.out( "Overriding the file.")
 							stardb.writeSelection(cmd[1])
 						else:
-							print "Not overriding."
+							stardb.out( "Not overriding.")
 					else:
 						stardb.writeSelection(cmd[1])
 				elif cmd[0] == "write":#
 					if os.path.isfile(cmd[1]):
-						print "The file '"+str(cmd[1])+"' already exists."
+						stardb.out( "The file '"+str(cmd[1])+"' already exists.")
 						ans = raw_input("Do you want to override (y/n)?")
 						if ans == "y":
-							print "Overriding the file."
+							stardb.out( "Overriding the file.")
 							stardb.writeStar(cmd[1])
 						else:
-							print "Not overriding."
+							stardb.out( "Not overriding.")
 					else:
 						stardb.writeStar(cmd[1])
 
 			else:
-				print "You must select a table with --use before you can proceed."
+				stardb.out( "You must select a table with --use before you can proceed.")
 
 
 			
