@@ -2,6 +2,8 @@
 import argparse, sys, os.path, re
 import STlib
 
+version="1.2"
+
 # Extends the argparse module to store ordered args in a separate namespace
 class store_ordered(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -13,64 +15,70 @@ class store_ordered(argparse.Action):
 
 parser = argparse.ArgumentParser(prog="startool", 
 								description="Swiss army knife for editing star files",
-								epilog="t")
+								epilog="")
 
-parser.add_argument('i', action='store')
+parser.add_argument('inputfile', action='store')
 
-parser.add_argument('--info', action=store_ordered, nargs='?')
-parser.add_argument('--show', action=store_ordered, nargs='?')
-parser.add_argument('--debug', action=store_ordered, nargs='?')
+parser.add_argument('--info', action=store_ordered, nargs='?', metavar="None")
+parser.add_argument('--show', action=store_ordered, nargs='?', metavar="None")
+parser.add_argument('--debug', action=store_ordered, nargs='?', metavar="None")
+parser.add_argument('--silent', action=store_ordered, nargs='?', metavar="None")
 
 #Selectors
-parser.add_argument('--use', action=store_ordered)
-parser.add_argument('--select', action=store_ordered)
-parser.add_argument('--select_regex', action=store_ordered)
-parser.add_argument('--select_star', action=store_ordered)
-parser.add_argument('--select_fancy', action=store_ordered)
-parser.add_argument('--release', action=store_ordered, nargs='?')
-parser.add_argument('--deselect', action=store_ordered, nargs='?')
-parser.add_argument('--sort', action=store_ordered)
-parser.add_argument('--tros', action=store_ordered)
-parser.add_argument('--subset', action=store_ordered)
+parser.add_argument('--use', action=store_ordered, metavar="tablename")
+parser.add_argument('--select', action=store_ordered, metavar="_rlnLabel\><=value")
+parser.add_argument('--select_regex', action=store_ordered, metavar="_rlnlabel='regular expression'")
+parser.add_argument('--select_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
+parser.add_argument('--select_fancy', action=store_ordered, metavar="_rlnLabelA,_rlnLabelB=starfile.star[variationA,variationB]")
+parser.add_argument('--release', action=store_ordered, nargs='?', metavar="None")
+parser.add_argument('--deselect', action=store_ordered, nargs='?', metavar="None")
+parser.add_argument('--sort', action=store_ordered, metavar="_rlnLabel")
+parser.add_argument('--tros', action=store_ordered, metavar="_rlnLabel")
+parser.add_argument('--subset', action=store_ordered, metavar="start:end")
 
 #Global Editors
-parser.add_argument('--add_col', action=store_ordered)
-parser.add_argument('--delete_col', action=store_ordered)
-parser.add_argument('--rename_col', action=store_ordered)
+parser.add_argument('--add_col', action=store_ordered, metavar="_rlnNewLabel")
+parser.add_argument('--delete_col', action=store_ordered, metavar="_rlnLabel")
+parser.add_argument('--rename_col', action=store_ordered, metavar="_rlnOldLabel=_rlnNewLabel")
 
-parser.add_argument('--delete_table', action=store_ordered)
-parser.add_argument('--rename_table', action=store_ordered)
+parser.add_argument('--delete_table', action=store_ordered, metavar="tablename")
+parser.add_argument('--rename_table', action=store_ordered, metavar="new_tablename")
 
 #Local Editors
-parser.add_argument('--replace', action=store_ordered)
-parser.add_argument('--replace_regex', action=store_ordered)
-parser.add_argument('--replace_star', action=store_ordered)
+parser.add_argument('--replace', action=store_ordered, metavar="_rlnLabel=value")
+parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search%replace'")
+parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
 # Deletes stuff from the local selection
-parser.add_argument('--delete', action=store_ordered, nargs='?')
+parser.add_argument('--delete', action=store_ordered, nargs='?', metavar="None")
 
-parser.add_argument('--merge', action=store_ordered)
+parser.add_argument('--merge', action=store_ordered, metavar="starfilename.star")
 
 #Special
-parser.add_argument('--query', action=store_ordered)
+parser.add_argument('--query', action=store_ordered, metavar="SQLite query")
 
 # Output
-parser.add_argument('--write_selection', action=store_ordered)
-parser.add_argument('--write', action=store_ordered)
+parser.add_argument('--write_selection', action=store_ordered, metavar="starfilename.star")
+parser.add_argument('--write', action=store_ordered, metavar="starfilename.star")
 
 # parse the arguments
 args = parser.parse_args()
 
 
+# Start the instance in verbose or silent mode
+if hasattr(args, "ordered_args") and ('silent',None) in args.ordered_args:
+	stardb = STlib.StarTool(1)
+else:
+	stardb = STlib.StarTool(0)
+
 # Load the input file(s) and store in memory if not specified otherwise
 # If there is the location specified, split it
 
-print "### StarTool 1.1 (by Chris) ###"
-
-if ":" in args.i:
-	part = args.i.split(":")
+print "### StarTool "+version+" (by Chris) ###"
+if ":" in args.inputfile:
+	part = args.inputfile.split(":")
 	if part[1] == "mem":
 		print "Starting StarTool in memory\n"
-		stardb = STlib.StarTool("mem")
+		stardb.createDB("mem")
 		# Get filenames to load
 		for fil in part[0].split(","):
 			print "Loading "+fil+"..."
@@ -83,7 +91,7 @@ if ":" in args.i:
 		make="no"
 		if not os.path.isfile(part[1]) or os.stat(part[1]).st_size == 0:
 			make = "yes"
-		stardb = STlib.StarTool(part[1], part[0])
+		stardb.createDB(part[1], part[0])
 		if make == "yes":
 			for fil in part[0].split(","):
 				print "Loading "+fil+"..."
@@ -94,9 +102,9 @@ if ":" in args.i:
 			
 else:
 	print "Starting StarTool in memory\n"
-	stardb = STlib.StarTool("mem")
+	stardb.createDB("mem")
 	part = []
-	part.append(args.i)
+	part.append(args.inputfile)
 	# Get filenames to load
 	for fil in part[0].split(","):
 		print "Loading "+fil+"..."
@@ -347,12 +355,8 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
-# - after merging, the labels are not sorted anymore (becasue of the sets?)
 
 # Todo:
 # - improve the show screen -> only columns!
 # - implement merge_clean function (checks for duplicates before insert into tmp)
 
-# Notes: 
-# >replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
-# >all writer methods need a table selected by --use the corresponding star file will be written

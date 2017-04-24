@@ -1,4 +1,4 @@
-#!bin/python
+#!/bin/python
 import sqlite3, re, sys, time
 class StarTool:
 	# This stores the subqueries from all called select statements
@@ -14,8 +14,13 @@ class StarTool:
 	# if set to 1 no terminal output will be produced
 	SILENT = 0
 	
-	def __init__(self, obj, fi=""):
-	# Creates a DB (either memory or as a file)
+	def __init__(self, silent):
+		self.SILENT=silent
+		
+
+	def createDB(self, obj, fi=""):
+		#this is a dummy method that will take over some functionality of __init__ 
+		# Creates a DB (either memory or as a file)
 		if obj == "mem":
 			self.db = sqlite3.connect(':memory:')
 		else:			
