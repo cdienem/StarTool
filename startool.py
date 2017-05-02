@@ -52,6 +52,7 @@ parser.add_argument('--merge', action=store_ordered)
 
 #Special
 parser.add_argument('--query', action=store_ordered)
+parser.add_argument('--math', action=store_ordered) # still experimental
 
 # Output
 parser.add_argument('--split_by', action=store_ordered)
@@ -362,6 +363,7 @@ if hasattr(args, "ordered_args"):
 # - improve the show screen -> only columns!
 # - implement merge_clean function (checks for duplicates before insert into tmp)
 # - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
+# - refactor program startup
 
 # Notes: 
 # >replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
