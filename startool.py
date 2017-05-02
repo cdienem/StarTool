@@ -54,6 +54,8 @@ parser.add_argument('--merge', action=store_ordered)
 parser.add_argument('--query', action=store_ordered)
 
 # Output
+parser.add_argument('--split_by', action=store_ordered)
+
 parser.add_argument('--write_selection', action=store_ordered)
 parser.add_argument('--write', action=store_ordered)
 
@@ -161,6 +163,13 @@ if hasattr(args, "ordered_args"):
 		elif cmd[0] == "debug":
 			# prints some debug information
 			stardb.debug()
+
+		elif cmd[0] == "split_by":
+			if cmd[1] in stardb.getLabels():
+				stardb.splitBy(cmd[1])
+			else:
+				stardb.out("Please provide a column name that exists.")
+
 		else:
 			# go here with comands that have restrictions
 			# Methods that need a table selected
@@ -347,11 +356,12 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
-# - after merging, the labels are not sorted anymore (becasue of the sets?)
+
 
 # Todo:
 # - improve the show screen -> only columns!
 # - implement merge_clean function (checks for duplicates before insert into tmp)
+# - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
 
 # Notes: 
 # >replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards

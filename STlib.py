@@ -235,8 +235,8 @@ class StarTool:
 			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" != ''")
 		else:
 			# Escape strings with 
-			if type(pattern) == str:
-				pattern = "'"+pattern+"'" # necessary for string patterns to be quoted in the query
+			if type(pattern) == str or type(pattern) == unicode:
+				pattern = "\""+pattern+"\"" # necessary for string patterns to be quoted in the query
 			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" "+mod+" "+str(pattern))
 
 	def select_regex(self, col, pattern):
@@ -507,8 +507,19 @@ class StarTool:
 			if len(self.STARTABLES.keys()) > 1:
 				print "\n\n"
 
-
-
+	def splitBy(self, colname):
+		# get unique values, select from all of them and write out the selections
+		c = self.db.cursor()
+		q = c.execute("SELECT DISTINCT \""+colname+"\" FROM \""+self.CURRENT+"\"")
+		uniques = q.fetchall()
+		# overrides all selections !
+		for entry in uniques:
+			self.deselect()
+			self.select(colname , "=", entry[0])
+			# in case of filenames
+			if "/" in str(entry[0]):
+				name = str(entry[0]).rsplit("/",1)[1]
+			self.writeSelection(name+".star")
 		
 
 	def writeSelection(self, starfilename, mode="w+"):
