@@ -20,7 +20,7 @@ class StarTool:
 			self.db = sqlite3.connect(':memory:')
 		else:			
 			self.db = sqlite3.connect(obj)
-			# Create STARTABLES
+			# Create STARTABLES if there is a file already
 			c = self.db.cursor()
 			c.execute("SELECT name FROM sqlite_master WHERE type='table';")
 			tables = c.fetchall()
@@ -143,7 +143,6 @@ class StarTool:
 			c.execute("INSERT INTO \""+tname+"\" VALUES ("+number+")",row)
 		self.db.commit()
 
-
 	def isReal(self, value):
 	# Checks if the string read from a star file is actually a float value
 		try:
@@ -208,6 +207,8 @@ class StarTool:
 		print "Query: "+self.assembleSelector()
 		print "STARTABLES: "
 		print self.STARTABLES
+		#for row in c.execute("SELECT rowid, oid, _rowid_ FROM ("+self.assembleSelector()+")"):
+	#		print row
 
 ####### SELECTORS:
 
@@ -489,6 +490,19 @@ class StarTool:
 		c.execute(q)
 		c.execute("DROP TABLE tmp")
 		self.db.commit()
+
+	def doMath(self, a, b, operator):
+		# a and b can be values (number) or field names of the current table in use
+		# method for doing simple math tasks like
+		# add: +
+		# subtract: -
+		# multiply: *
+		# devide: /
+		# power: ** 
+		# root: //
+		# math is done on the current selection
+		# UPDATE table SET a = expression WHERE 
+		pass
 
 	def countRows(self, table):
 		c = self.db.cursor()

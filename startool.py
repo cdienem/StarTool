@@ -364,6 +364,8 @@ if hasattr(args, "ordered_args"):
 # - implement merge_clean function (checks for duplicates before insert into tmp)
 # - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
 # - refactor program startup
+# - rewrite the editors that work on selection to use the4 ROWID for better identification of entries (UPDATE table SET x = y WHERE ROWID...
+#		-> for this change the usage of db cursors in a way that there is only a single cursor created (otherwise rowid is not visible)
 
 # Notes: 
 # >replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
