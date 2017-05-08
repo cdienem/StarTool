@@ -184,3 +184,7 @@ specific tables or subsets should be written, you may use `--use` and write it a
 
 This option is for experienced users that want to send their own SQLite queries. It will ignore any
 previously called selector methods. A SELECT statement will trigger a print of the called data.
+
+## Usage Examples
+
+
