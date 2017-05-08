@@ -328,7 +328,7 @@ class StarTool:
 	#DROP TABLE t1_backup;
 	#COMMIT;
 		self.CURSOR.execute("SELECT * FROM \""+self.CURRENT+"\"")
-		labels = [t[0] for t in c.description]
+		labels = self.getLabels()
 		labels.remove(col)
 		self.CURSOR.execute("CREATE TEMPORARY TABLE tmp("+",".join(labels)+")")
 		self.CURSOR.execute("INSERT INTO tmp SELECT "+",".join(labels)+" FROM \""+self.CURRENT+"\"")
@@ -545,9 +545,10 @@ class StarTool:
 				else:
 					name = "data_"+self.CURRENT
 		
-		labels = self.getLabels(self.CURRENT)
-		# gets the data rows, not selection the ROWID here
-		exe = self.CURSOR.execute("SELECT * FROM ("+self.assembleSelector()+")")
+		labels = self.getLabels()
+		# gets the data rows that are in the labels
+		fields = ",".join(labels)
+		exe = self.CURSOR.execute("SELECT "+fields+" FROM ("+self.assembleSelector()+")")
 		data = exe.fetchall()
 		if len(data) == 1:
 			with open(starfilename,mode) as f:

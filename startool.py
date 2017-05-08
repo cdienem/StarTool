@@ -59,6 +59,7 @@ parser.add_argument('--split_by', action=store_ordered)
 
 parser.add_argument('--write_selection', action=store_ordered)
 parser.add_argument('--write', action=store_ordered)
+parser.add_argument('--writef', action=store_ordered)
 
 # parse the arguments
 args = parser.parse_args()
@@ -192,10 +193,12 @@ if hasattr(args, "ordered_args"):
 
 				elif cmd[0] == "delete_col":
 					# _rlnLabel
-					if cmd[1] in stardb.getLabels():
-						stardb.deleteCol(cmd[1])
-					else:
-						print "Cannot delete column '"+cmd[1]+"' because it does not exist.\n"
+					cols = cmd[1].split(",")
+					for col in cols:
+						if col in stardb.getLabels():
+							stardb.deleteCol(col)
+						else:
+							print "Cannot delete column '"+col+"' because it does not exist.\n"
 
 				elif cmd[0] == "rename_col":
 					#_rlnLabelOld=_rlnLabelNew			
@@ -346,6 +349,10 @@ if hasattr(args, "ordered_args"):
 							print "Not overriding."
 					else:
 						stardb.writeStar(cmd[1])
+				
+				elif cmd[0] == "writef":#
+					stardb.writeStar(cmd[1])
+
 				elif cmd[0] == "math":
 					# rlnLabel=(number|rlnLabel)(operator)(number|rlnLabel)
 					pat = "^\_rln(.*?)=(.+?)(\/\/|\*\*|\+|\-|\*|\/)(.+)$"
