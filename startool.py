@@ -314,7 +314,7 @@ if hasattr(args, "ordered_args"):
 					if com[0] in stardb.getLabels() and os.path.isfile(com[1]):
 						stardb.replace_star(com[0],com[1])
 					else:
-						print "Column "+getCurrent()+"."+com[0]+" does not exist (--replace_star)"
+						print "Column "+stardb.getCurrent()+"."+com[0]+" does not exist (--replace_star)"
 
 				elif cmd[0] == "delete":#
 					# None, calls release after execution
@@ -346,6 +346,11 @@ if hasattr(args, "ordered_args"):
 							print "Not overriding."
 					else:
 						stardb.writeStar(cmd[1])
+				elif cmd[0] == "math":
+					# rlnLabel=(number|rlnLabel)(operator)(number|rlnLabel)
+					pat = "^\_rln(.*?)=(.+?)(\/\/|\*\*|\+|\-|\*|\/)(.+)$"
+					match = re.search(pat,cmd[1])
+					stardb.doMath("_rln"+match.group(1), match.group(2), match.group(3), match.group(4))
 
 			else:
 				print "You must select a table with --use before you can proceed."
@@ -368,5 +373,6 @@ if hasattr(args, "ordered_args"):
 #		-> for this change the usage of db cursors in a way that there is only a single cursor created (otherwise rowid is not visible)
 
 # Notes: 
-# >replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
-# >all writer methods need a table selected by --use the corresponding star file will be written
+# > replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
+# > all writer methods need a table selected by --use the corresponding star file will be written
+# > replace_regex: the stupid case of someone replacing a string into a float field?
