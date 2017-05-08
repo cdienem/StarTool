@@ -178,6 +178,10 @@ Writes all tables belonging to the STAR-file which the current table is part of.
 individual tables by editor methods will be written (selection will be released before writing). If only
 specific tables or subsets should be written, you may use `--use` and write it as a selection with `--write_selection`.
 
+`--writef [ outputstarfile.star ]`
+
+Same as `--write`, however overrides files without asking.
+
 ### Special
 
 `--query [ SQLite-query ]`
