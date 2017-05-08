@@ -1,5 +1,6 @@
 #!/bin/python
 import sqlite3, re, sys, time
+
 class StarTool:
 	# This stores the subqueries from all called select statements
 	QUERY = []
