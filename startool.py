@@ -55,8 +55,11 @@ parser.add_argument('--merge', action=store_ordered, metavar="starfilename.star"
 
 #Special
 parser.add_argument('--query', action=store_ordered, metavar="SQLite query")
+parser.add_argument('--math', action=store_ordered) # still experimental
 
 # Output
+parser.add_argument('--split_by', action=store_ordered)
+parser.add_argument('--writef', action=store_ordered)
 parser.add_argument('--write_selection', action=store_ordered, metavar="starfilename.star")
 parser.add_argument('--write', action=store_ordered, metavar="starfilename.star")
 
@@ -169,6 +172,13 @@ if hasattr(args, "ordered_args"):
 		elif cmd[0] == "debug":
 			# prints some debug information
 			stardb.debug()
+
+		elif cmd[0] == "split_by":
+			if cmd[1] in stardb.getLabels():
+				stardb.splitBy(cmd[1])
+			else:
+				stardb.out("Please provide a column name that exists.")
+
 		else:
 			# go here with comands that have restrictions
 			# Methods that need a table selected
@@ -190,10 +200,12 @@ if hasattr(args, "ordered_args"):
 
 				elif cmd[0] == "delete_col":
 					# _rlnLabel
-					if cmd[1] in stardb.getLabels():
-						stardb.deleteCol(cmd[1])
-					else:
-						stardb.out( "Cannot delete column '"+cmd[1]+"' because it does not exist.\n")
+					cols = cmd[1].split(",")
+					for col in cols:
+						if col in stardb.getLabels():
+							stardb.deleteCol(col)
+						else:
+							print "Cannot delete column '"+col+"' because it does not exist.\n"
 
 				elif cmd[0] == "rename_col":
 					#_rlnLabelOld=_rlnLabelNew			
@@ -311,7 +323,7 @@ if hasattr(args, "ordered_args"):
 					if com[0] in stardb.getLabels() and os.path.isfile(com[1]):
 						stardb.replace_star(com[0],com[1])
 					else:
-						stardb.out( "Column "+getCurrent()+"."+com[0]+" does not exist (--replace_star).")
+						print "Column "+stardb.getCurrent()+"."+com[0]+" does not exist (--replace_star)"
 
 				elif cmd[0] == "delete":#
 					# None, calls release after execution
@@ -343,6 +355,15 @@ if hasattr(args, "ordered_args"):
 							stardb.out( "Not overriding.")
 					else:
 						stardb.writeStar(cmd[1])
+				
+				elif cmd[0] == "writef":#
+					stardb.writeStar(cmd[1])
+
+				elif cmd[0] == "math":
+					# rlnLabel=(number|rlnLabel)(operator)(number|rlnLabel)
+					pat = "^\_rln(.*?)=(.+?)(\/\/|\*\*|\+|\-|\*|\/)(.+)$"
+					match = re.search(pat,cmd[1])
+					stardb.doMath("_rln"+match.group(1), match.group(2), match.group(3), match.group(4))
 
 			else:
 				stardb.out( "You must select a table with --use before you can proceed.")
@@ -355,7 +376,16 @@ if hasattr(args, "ordered_args"):
 			
 # Bugs:
 
+
 # Todo:
 # - improve the show screen -> only columns!
 # - implement merge_clean function (checks for duplicates before insert into tmp)
+# - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
+# - refactor program startup
+# - rewrite the editors that work on selection to use the4 ROWID for better identification of entries (UPDATE table SET x = y WHERE ROWID...
+#		-> for this change the usage of db cursors in a way that there is only a single cursor created (otherwise rowid is not visible)
 
+# Notes:
+# > replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
+# > all writer methods need a table selected by --use the corresponding star file will be written
+# > replace_regex: the stupid case of someone replacing a string into a float field?

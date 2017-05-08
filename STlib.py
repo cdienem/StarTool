@@ -13,6 +13,9 @@ class StarTool:
 
 	# if set to 1 no terminal output will be produced
 	SILENT = 0
+
+	# this holds the DB cursor
+	CURSOR = None
 	
 	def __init__(self, silent):
 		self.SILENT=silent
@@ -23,12 +26,13 @@ class StarTool:
 		# Creates a DB (either memory or as a file)
 		if obj == "mem":
 			self.db = sqlite3.connect(':memory:')
+			self.CURSOR = self.db.cursor()
 		else:			
 			self.db = sqlite3.connect(obj)
-			# Create STARTABLES
-			c = self.db.cursor()
-			c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-			tables = c.fetchall()
+			self.CURSOR = seld.db.cursor()
+			# Create STARTABLES if there is a file already
+			self.CURSOR.execute("SELECT name FROM sqlite_master WHERE type='table';")
+			tables = self.CURSOR.fetchall()
 			ret = []
 			self.STARTABLES[fi] = []
 			for t in tables:
@@ -126,7 +130,6 @@ class StarTool:
 
 	def makeTable(self, starfilename, name, labels, data):
 	# Creates the given table and fills it with data (overrides existing ones)
-		c = self.db.cursor()
 		fname = starfilename.split("/")[-1]
 		fname = fname.split(".")
 		tname = fname[0]+"_"+name
@@ -141,13 +144,12 @@ class StarTool:
 		
 		# Join the labels and datatypes
 		head = ",".join(labels)
-		c.execute("CREATE TABLE IF NOT EXISTS \""+tname+"\"("+head+")")
+		self.CURSOR.execute("CREATE TABLE IF NOT EXISTS \""+tname+"\"("+head+")")
 		number = len(labels)*"?,"
 		number = number.strip(",")
 		for row in data:
-			c.execute("INSERT INTO \""+tname+"\" VALUES ("+number+")",row)
+			self.CURSOR.execute("INSERT INTO \""+tname+"\" VALUES ("+number+")",row)
 		self.db.commit()
-
 
 	def isReal(self, value):
 	# Checks if the string read from a star file is actually a float value
@@ -160,9 +162,9 @@ class StarTool:
 	def showTable(self):
 	# Simple debugging method to dump the content of a table
 	# TODO: Implement a nicer printing
-		c = self.db.cursor()
-		for row in c.execute("SELECT * FROM ("+self.assembleSelector()+")"):
-			print row
+		for row in self.CURSOR.execute("SELECT * FROM ("+self.assembleSelector()+")"):
+			# this excludes the first field which is the ROWID
+			print row[1:]
 
 	def query(self, q):
 	# This method allows experienced users to send SQL querys
@@ -175,8 +177,7 @@ class StarTool:
 				print out
 
 		else:
-			c = self.db.cursor()
-			c.execute(q)
+			self.CURSOR.execute(q)
 			self.db.commit()
 
 	def regexp(self, expr, item):
@@ -189,20 +190,18 @@ class StarTool:
 		return re.sub(pattern, replace, string)
 
 	def getTables(self):
-		c = self.db.cursor()
-		c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-		tables = c.fetchall()
+		self.CURSOR.execute("SELECT name FROM sqlite_master WHERE type='table';")
+		tables = self.CURSOR.fetchall()
 		ret = []
 		for t in tables:
 			ret.append(t[0])
 		return ret
 
 	def getLabels(self, table="current"):
-		c = self.db.cursor()
 		if table == "current":
 			table = self.CURRENT
-		c.execute("SELECT * FROM \""+table+"\"")
-		labels = [t[0] for t in c.description]
+		self.CURSOR.execute("SELECT * FROM \""+table+"\"")
+		labels = [t[0] for t in self.CURSOR.description]
 		return labels
 
 	def getCurrent(self):
@@ -210,9 +209,12 @@ class StarTool:
 
 	def debug(self):
 		print "CURRENT: "+self.CURRENT
+		#print self.QUERY
 		print "Query: "+self.assembleSelector()
 		print "STARTABLES: "
 		print self.STARTABLES
+		#for row in c.execute("SELECT rowid, oid, _rowid_ FROM ("+self.assembleSelector()+")"):
+	#		print row
 
 ####### SELECTORS:
 
@@ -240,8 +242,8 @@ class StarTool:
 			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" != ''")
 		else:
 			# Escape strings with 
-			if type(pattern) == str:
-				pattern = "'"+pattern+"'" # necessary for string patterns to be quoted in the query
+			if type(pattern) == str or type(pattern) == unicode:
+				pattern = "\""+pattern+"\"" # necessary for string patterns to be quoted in the query
 			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" "+mod+" "+str(pattern))
 
 	def select_regex(self, col, pattern):
@@ -289,10 +291,13 @@ class StarTool:
 			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
 
 	def assembleSelector(self):
-		
+		# this assembles a nested query for the selections that have been made
+		# replaces "?" by the current table (for the first entry) or by the 
 		for i in range(len(self.QUERY)):
 			if i == 0:
 				select = self.QUERY[i].replace("FROM ?", "FROM \""+self.CURRENT+"\"")
+				# introduces the ROWID in selection statement to make it available at the very end
+				select = select.replace("SELECT ", "SELECT ROWID,")
 			else:
 				select = self.QUERY[i].replace("FROM ?","FROM ("+select+")")
 		return select
@@ -300,11 +305,11 @@ class StarTool:
 	def releaseTable(self):
 	# Unsets current table, selectors and sorters
 		self.CURRENT = ""
-		self.QUERY = []
+		self.QUERY = ["SELECT * FROM ?"]
 
 	def deselect(self):
 	# Unsets current selections
-		self.QUERY = []
+		self.QUERY = ["SELECT * FROM ?"]
 
 
 ######## EDITORS:
@@ -313,9 +318,8 @@ class StarTool:
 	# Adds a column to the table
 	# Default is type TEXT, upon filling, the 
 	# values are checked and type might be changed
-		c = self.db.cursor()
 		q = "ALTER TABLE \""+self.CURRENT+"\" ADD COLUMN \""+col+"\" TEXT"
-		c.execute(q)
+		self.CURSOR.execute(q)
 		self.db.commit()
 
 	def deleteCol(self, col):
@@ -328,37 +332,34 @@ class StarTool:
 	#INSERT INTO t1 SELECT a,b FROM t1_backup;
 	#DROP TABLE t1_backup;
 	#COMMIT;
-		c = self.db.cursor()
-		c.execute("SELECT * FROM \""+self.CURRENT+"\"")
-		labels = [t[0] for t in c.description]
+		self.CURSOR.execute("SELECT * FROM \""+self.CURRENT+"\"")
+		labels = self.getLabels()
 		labels.remove(col)
-		c.execute("CREATE TEMPORARY TABLE tmp("+",".join(labels)+")")
-		c.execute("INSERT INTO tmp SELECT "+",".join(labels)+" FROM \""+self.CURRENT+"\"")
-		c.execute("DROP TABLE \""+self.CURRENT+"\"")
-		c.execute("CREATE TABLE \""+self.CURRENT+"\"("+",".join(labels)+")")
-		c.execute("INSERT INTO \""+self.CURRENT+"\" SELECT "+",".join(labels)+" FROM tmp")
-		c.execute("DROP TABLE tmp")
+		self.CURSOR.execute("CREATE TEMPORARY TABLE tmp("+",".join(labels)+")")
+		self.CURSOR.execute("INSERT INTO tmp SELECT "+",".join(labels)+" FROM \""+self.CURRENT+"\"")
+		self.CURSOR.execute("DROP TABLE \""+self.CURRENT+"\"")
+		self.CURSOR.execute("CREATE TABLE \""+self.CURRENT+"\"("+",".join(labels)+")")
+		self.CURSOR.execute("INSERT INTO \""+self.CURRENT+"\" SELECT "+",".join(labels)+" FROM tmp")
+		self.CURSOR.execute("DROP TABLE tmp")
 		self.db.commit()
 
 	def renameCol(self, col, newcolname):
 		# Uses similar workaround as deleteCol
-		c = self.db.cursor()
-		c.execute("SELECT * FROM \""+self.CURRENT+"\"")
+		self.CURSOR.execute("SELECT * FROM \""+self.CURRENT+"\"")
 		labels = self.getLabels(self.CURRENT)
 		newlabels = list(labels)
 		newlabels[newlabels.index(col)] = newcolname
-		c.execute("CREATE TEMPORARY TABLE tmp("+",".join(labels)+")")
-		c.execute("INSERT INTO tmp SELECT "+",".join(labels)+" FROM \""+self.CURRENT+"\"")
-		c.execute("DROP TABLE \""+self.CURRENT+"\"")
-		c.execute("CREATE TABLE \""+self.CURRENT+"\"("+",".join(newlabels)+")")
-		c.execute("INSERT INTO \""+self.CURRENT+"\" SELECT "+",".join(labels)+" FROM tmp")
-		c.execute("DROP TABLE tmp")
+		self.CURSOR.execute("CREATE TEMPORARY TABLE tmp("+",".join(labels)+")")
+		self.CURSOR.execute("INSERT INTO tmp SELECT "+",".join(labels)+" FROM \""+self.CURRENT+"\"")
+		self.CURSOR.execute("DROP TABLE \""+self.CURRENT+"\"")
+		self.CURSOR.execute("CREATE TABLE \""+self.CURRENT+"\"("+",".join(newlabels)+")")
+		self.CURSOR.execute("INSERT INTO \""+self.CURRENT+"\" SELECT "+",".join(labels)+" FROM tmp")
+		self.CURSOR.execute("DROP TABLE tmp")
 		self.db.commit()
 
 	def renameTable(self, newtablename):
-		c = self.db.cursor()
 		q = "ALTER TABLE \""+self.CURRENT+"\" RENAME TO \""+newtablename+"\""
-		c.execute(q)
+		self.CURSOR.execute(q)
 		self.db.commit()
 		for t in self.STARTABLES.keys():
 			if self.CURRENT in self.STARTABLES[t]:
@@ -368,8 +369,7 @@ class StarTool:
 
 
 	def removeTable(self, table):
-		c = self.db.cursor()
-		c.execute("DROP TABLE \""+table+"\"")
+		self.CURSOR.execute("DROP TABLE \""+table+"\"")
 		self.db.commit()
 		for t in self.STARTABLES.keys():
 			if self.CURRENT in self.STARTABLES[t]:
@@ -391,6 +391,7 @@ class StarTool:
 	def mergeStar(self,starfile):
 		# merges all starfiles currently read 
 		# they should only consist of one table each with the same name
+		# implement a merge clean option that check for duplicates
 		tables = []
 		labels = []
 		tab = ""
@@ -421,11 +422,10 @@ class StarTool:
 
 		# create tmp table, put all data there
 		# hijack write_selection to write this table
-		c = self.db.cursor()
-		c.execute("CREATE TEMPORARY TABLE tmp_"+tab+"("+",".join(labels_intersect)+")")
+		self.CURSOR.execute("CREATE TEMPORARY TABLE tmp_"+tab+"("+",".join(labels_intersect)+")")
 		self.db.commit()
 		for t in tables:
-			c.execute("INSERT INTO tmp_"+tab+" SELECT "+",".join(labels_intersect)+" FROM \""+t+"\"")
+			self.CURSOR.execute("INSERT INTO tmp_"+tab+" SELECT "+",".join(labels_intersect)+" FROM \""+t+"\"")
 			self.db.commit()
 		bak_cur = self.CURRENT
 		bak_que = self.QUERY
@@ -436,20 +436,19 @@ class StarTool:
 		self.CURRENT = bak_cur
 		self.QUERY = bak_que
 		del(self.STARTABLES["tmp"])
-		c.execute("DROP TABLE tmp_"+tab)
+		self.CURSOR.execute("DROP TABLE tmp_"+tab)
 		self.db.commit()
 
 
 	def replace(self, col, val):
-		c = self.db.cursor()
 		# Check type of val here
 		if type(val) == str:
 			val = "'"+val+"'"
 		else:
 			val = str(val)
 		# Asseble the query
-		q = "UPDATE \""+self.CURRENT+"\" SET \""+col+"\"="+val+" WHERE \""+col+"\" IN (SELECT \""+col+"\" FROM ("+self.assembleSelector()+"))"
-		c.execute(q)
+		q = "UPDATE \""+self.CURRENT+"\" SET \""+col+"\"="+val+" WHERE ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))"
+		self.CURSOR.execute(q)
 		self.db.commit()
 
 	def replace_star(self, col, starfile):
@@ -465,44 +464,53 @@ class StarTool:
 			if col  in self.getLabels(self.STARTABLES[starfile][0]):
 					# This one has the reference col
 					q = "UPDATE \""+self.CURRENT+"\" SET \""+col+"\" = (SELECT \""+self.getLabels(self.STARTABLES[starfile][0])+"."+col+"\" FROM \""+self.getLabels(self.STARTABLES[starfile][0])+"\" WHERE \""+self.getLabels(self.STARTABLES[starfile][0])+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\" ) WHERE EXISTS (SELECT * FROM \""+self.getLabels(self.STARTABLES[starfile][0])+"\" WHERE \""+self.getLabels(self.STARTABLES[starfile][0])+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\") AND \""+self.CURRENT+"."+refcol+"\" IN (SELECT \""+refcol+"\" FROM ("+self.assembleSelector()+"))"
-					c = self.db.cursor()
-					c.execute(q)
+					self.CURSOR.execute(q)
 					self.db.commit()
+					#Todo: drot the reference table at some point?
 			else:
 				print "Columns "+str(col)+" does not exist in "+starfile
 		else:
 			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
 
 	def replace_regex(self, col, search, repl):
-		c = self.db.cursor()
-		c.execute("UPDATE \""+self.CURRENT+"\" SET \""+col+"\"=replace("+col+",?,?) WHERE \""+col+"\" IN (SELECT \""+col+"\" FROM ("+self.assembleSelector()+"))",(search,repl,))
+		self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+col+"\"=replace("+col+",?,?) WHERE ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))",(search,repl,))
 		self.db.commit()
-		pass
 
 	def deleteSelection(self):
-		c = self.db.cursor()
-		c.execute("SELECT * FROM \""+self.CURRENT+"\"")
-		labels = [t[0] for t in c.description]
-		c.execute("CREATE TEMPORARY TABLE tmp("+",".join(labels)+")")
-		c.execute("INSERT INTO tmp SELECT "+",".join(labels)+" FROM ("+self.assembleSelector()+")")
-		self.db.commit()
-		where = []
-		# This is ugly but it works. Find another solution...
-		for l in labels:
-			where.append("\""+l+"\" IN (select \""+l+"\" FROM ("+self.assembleSelector()+"))")
-		q = "DELETE FROM \""+self.CURRENT+"\" WHERE "+" AND ".join(where)
-		c.execute(q)
-		c.execute("DROP TABLE tmp")
+		q = "DELETE FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))"
+		self.CURSOR.execute(q)
 		self.db.commit()
 
+	def doMath(self, field, a, operator, b):
+		# a and b can be values (number) or field names of the current table in use
+		# method for doing simple math tasks like
+		# add: +
+		# subtract: -
+		# multiply: *
+		# devide: /
+		# power: ** 
+		# root: //
+		# math is done on the current selection	
+		if operator == "+":
+			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" + \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+		elif operator == "-":
+			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" - \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+		elif operator == "/":
+			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" / \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+		elif operator == "*":
+			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" * \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+		elif operator == "**":
+			pass
+		elif operator == "//":
+			pass
+		pass
+
 	def countRows(self, table):
-		c = self.db.cursor()
-		c.execute("select count(*) from \""+table+"\"")
-		return str(c.fetchone()[0])
+		self.CURSOR.execute("select count(*) from \""+table+"\"")
+		return str(self.CURSOR.fetchone()[0])
 
 
 	def info(self):
-		c = self.db.cursor()
 		for t in self.STARTABLES.keys():
 			print t
 			for table in self.STARTABLES[t]:
@@ -512,19 +520,28 @@ class StarTool:
 			if len(self.STARTABLES.keys()) > 1:
 				print "\n\n"
 
-
-
+	def splitBy(self, colname):
+		# get unique values, select from all of them and write out the selections
+		q = self.CURSOR.execute("SELECT DISTINCT \""+colname+"\" FROM \""+self.CURRENT+"\"")
+		uniques = q.fetchall()
+		# overrides all selections !
+		for entry in uniques:
+			self.deselect()
+			self.select(colname , "=", entry[0])
+			# in case of filenames
+			if "/" in str(entry[0]):
+				name = str(entry[0]).rsplit("/",1)[1]
+			self.writeSelection(name+".star")
+		self.deselect()
 		
 
 	def writeSelection(self, starfilename, mode="w+"):
 	# writes the current selection
-	# std mode is overide (w+)
+	# std mode is overide (w+)d
 	# is also used by writeStar
-		c = self.db.cursor()
-
-		# Extract table name for star file
-		# account for renamed tables not having the _data_ anymore
-		# This is fishy if the filename contains 'data'
+	# Extract table name for star file
+	# account for renamed tables not having the _data_ anymore
+	# This is fishy if the filename contains 'data'
 		for star in self.STARTABLES:
 			if self.CURRENT in self.STARTABLES[star]:
 				n = star.replace(".star","")
@@ -533,9 +550,10 @@ class StarTool:
 				else:
 					name = "data_"+self.CURRENT
 		
-		labels = self.getLabels(self.CURRENT)
-		# gets the data rows
-		exe = c.execute("SELECT * FROM ("+self.assembleSelector()+")")
+		labels = self.getLabels()
+		# gets the data rows that are in the labels
+		fields = ",".join(labels)
+		exe = self.CURSOR.execute("SELECT "+fields+" FROM ("+self.assembleSelector()+")")
 		data = exe.fetchall()
 		if len(data) == 1:
 			with open(starfilename,mode) as f:
