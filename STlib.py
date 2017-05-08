@@ -532,7 +532,7 @@ class StarTool:
 
 	def writeSelection(self, starfilename, mode="w+"):
 	# writes the current selection
-	# std mode is overide (w+)
+	# std mode is overide (w+)d
 	# is also used by writeStar
 	# Extract table name for star file
 	# account for renamed tables not having the _data_ anymore

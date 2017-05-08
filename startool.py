@@ -379,7 +379,7 @@ if hasattr(args, "ordered_args"):
 # - rewrite the editors that work on selection to use the4 ROWID for better identification of entries (UPDATE table SET x = y WHERE ROWID...
 #		-> for this change the usage of db cursors in a way that there is only a single cursor created (otherwise rowid is not visible)
 
-# Notes: 
+# Notes:
 # > replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
 # > all writer methods need a table selected by --use the corresponding star file will be written
 # > replace_regex: the stupid case of someone replacing a string into a float field?
