@@ -163,9 +163,16 @@ class StarTool:
 	def showTable(self):
 	# Simple debugging method to dump the content of a table
 	# TODO: Implement a nicer printing
+		l = ""
+		for label in self.getLabels():
+			l = l+str(label)+"  "
+		self.out(l)
 		for row in self.CURSOR.execute("SELECT * FROM ("+self.assembleSelector()+")"):
 			# this excludes the first field which is the ROWID
-			print row[1:]
+			o = ""
+			for field in row[1:]:
+				o = o+str(field)+"  "
+			self.out(o)
 
 	def query(self, q):
 	# This method allows experienced users to send SQL querys
@@ -464,10 +471,11 @@ class StarTool:
 		if len(self.STARTABLES[starfile]) == 1:
 			if col  in self.getLabels(self.STARTABLES[starfile][0]):
 					# This one has the reference col
-					q = "UPDATE \""+self.CURRENT+"\" SET \""+col+"\" = (SELECT \""+self.getLabels(self.STARTABLES[starfile][0])+"."+col+"\" FROM \""+self.getLabels(self.STARTABLES[starfile][0])+"\" WHERE \""+self.getLabels(self.STARTABLES[starfile][0])+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\" ) WHERE EXISTS (SELECT * FROM \""+self.getLabels(self.STARTABLES[starfile][0])+"\" WHERE \""+self.getLabels(self.STARTABLES[starfile][0])+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\") AND \""+self.CURRENT+"."+refcol+"\" IN (SELECT \""+refcol+"\" FROM ("+self.assembleSelector()+"))"
-					self.CURSOR.execute(q)
-					self.db.commit()
-					#Todo: drot the reference table at some point?
+					print "UPDATE \""+self.CURRENT+"\" SET \""+col+"\" = (SELECT \""+self.STARTABLES[starfile][0]+"."+col+"\" FROM \""+self.STARTABLES[starfile][0]+"\" WHERE \""+self.STARTABLES[starfile][0]+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\" )"
+					#WHERE EXISTS (SELECT * FROM \""+",".join(self.getLabels(self.STARTABLES[starfile][0]))+"\" WHERE \""+",".join(self.getLabels(self.STARTABLES[starfile][0]))+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\") AND \""+self.CURRENT+"."+refcol+"\" IN (SELECT \""+refcol+"\" FROM ("+self.assembleSelector()+"))
+					#self.CURSOR.execute(q)
+					#self.db.commit()
+					#Todo: drop the reference table at some point?
 			else:
 				print "Columns "+str(col)+" does not exist in "+starfile
 		else:
@@ -476,6 +484,9 @@ class StarTool:
 	def replace_regex(self, col, search, repl):
 		self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+col+"\"=replace("+col+",?,?) WHERE ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))",(search,repl,))
 		self.db.commit()
+
+
+
 
 	def deleteSelection(self):
 		q = "DELETE FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))"
@@ -506,6 +517,8 @@ class StarTool:
 			pass
 		pass
 
+
+
 	def countRows(self, table):
 		self.CURSOR.execute("select count(*) from \""+table+"\"")
 		return str(self.CURSOR.fetchone()[0])
@@ -521,19 +534,31 @@ class StarTool:
 			if len(self.STARTABLES.keys()) > 1:
 				print "\n\n"
 
-	def splitBy(self, colname):
-		# get unique values, select from all of them and write out the selections
-		q = self.CURSOR.execute("SELECT DISTINCT \""+colname+"\" FROM \""+self.CURRENT+"\"")
-		uniques = q.fetchall()
-		# overrides all selections !
-		for entry in uniques:
-			self.deselect()
-			self.select(colname , "=", entry[0])
-			# in case of filenames
-			if "/" in str(entry[0]):
-				name = str(entry[0]).rsplit("/",1)[1]
-			self.writeSelection(name+".star")
-		self.deselect()
+	def splitBy(self, colname, batch=-1):
+# Two ways of splitting: by uniques or into batches
+		if batch == -1:
+			# Works on the current selection
+			q = self.CURSOR.execute("SELECT DISTINCT \""+colname+"\" FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))" )
+			uniques = q.fetchall()
+			for entry in uniques:
+				# Adds another layer of selection
+				self.select(colname , "=", entry[0])
+				# In case of filenames in uniques
+				if "/" in str(entry[0]):
+					name = str(entry[0]).rsplit("/",1)[1]
+				else:
+					name = str(entry[0])
+				self.writeSelection(name+".star")
+				# Need to remove the last selection from the QUERY in order to proceed to the next unique
+				del(self.QUERY[-1])
+		else:
+			# count current selection
+			self.CURSOR.execute("SELECT COUNT(*) FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			num = self.CURSOR.fetchone()[0]
+			per_batch = int(num) // int(batch)
+			for i in range (batch):
+				print "LIMIT "+str(per_batch)+" OFFSET "+str(per_batch*i+1)
+			pass
 		
 
 	def writeSelection(self, starfilename, mode="w+"):

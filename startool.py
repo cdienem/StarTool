@@ -15,9 +15,7 @@ class store_ordered(argparse.Action):
         previous.append((self.dest, values))
         setattr(namespace, 'ordered_args', previous)
 
-parser = argparse.ArgumentParser(prog="startool", 
-								description="Swiss army knife for editing star files",
-								epilog="")
+parser = argparse.ArgumentParser(prog="startool", description="Swiss army knife for editing star files", epilog="")
 
 parser.add_argument('inputfile', action='store')
 
@@ -48,7 +46,7 @@ parser.add_argument('--rename_table', action=store_ordered, metavar="new_tablena
 
 #Local Editors
 parser.add_argument('--replace', action=store_ordered, metavar="_rlnLabel=value")
-parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search%replace'")
+parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search'%'replace'")
 parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
 # Deletes stuff from the local selection
 parser.add_argument('--delete', action=store_ordered, nargs='?', metavar="None")
@@ -57,11 +55,11 @@ parser.add_argument('--merge', action=store_ordered, metavar="starfilename.star"
 
 #Special
 parser.add_argument('--query', action=store_ordered, metavar="SQLite query")
-parser.add_argument('--math', action=store_ordered) # still experimental
+parser.add_argument('--math', action=store_ordered, metavar="_rlnLabel=A operator B") # still experimental
 
 # Output
-parser.add_argument('--split_by', action=store_ordered)
-parser.add_argument('--writef', action=store_ordered)
+parser.add_argument('--split_by', action=store_ordered, metavar="_rlnLabel:number of batches")
+parser.add_argument('--writef', action=store_ordered, metavar="starfilename.star")
 parser.add_argument('--write_selection', action=store_ordered, metavar="starfilename.star")
 parser.add_argument('--write', action=store_ordered, metavar="starfilename.star")
 
@@ -173,11 +171,18 @@ if hasattr(args, "ordered_args"):
 
 		elif cmd[0] == "debug":
 			# prints some debug information
+
 			stardb.debug()
 
 		elif cmd[0] == "split_by":
-			if cmd[1] in stardb.getLabels():
-				stardb.splitBy(cmd[1])
+			c = cmd[1].split(":")
+			if len(c) == 1:
+				batch = -1;
+			else:
+				batch = int(c[1])
+
+			if c[0] in stardb.getLabels():
+				stardb.splitBy(cmd[1],batch)
 			else:
 				stardb.out("Please provide a column name that exists.")
 
@@ -377,17 +382,19 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
-
+# - replace star does not seem to work as expected... also the logic is still a bit weird
 
 # Todo:
-# - improve the show screen -> only columns!
-# - implement merge_clean function (checks for duplicates before insert into tmp)
 # - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
-# - refactor program startup
-# - rewrite the editors that work on selection to use the4 ROWID for better identification of entries (UPDATE table SET x = y WHERE ROWID...
-#		-> for this change the usage of db cursors in a way that there is only a single cursor created (otherwise rowid is not visible)
+#     > pow missing
+# - implement split_by batch number
+#
+# - update readme with HTML
+#
+# - (v1.3) think about some unified error handling strategy
+#
+# - (v1.3) use an SQL table for the STARTABLES?
+
 
 # Notes:
-# > replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
-# > all writer methods need a table selected by --use the corresponding star file will be written
 # > replace_regex: the stupid case of someone replacing a string into a float field?
