@@ -284,12 +284,40 @@ if hasattr(args, "ordered_args"):
 						stardb.out( "Your input is malformed (--select_regex).")
 
 				elif cmd[0] == "select_star":
-					# _rlnLabel=ref.star
-					if cmd[1] != None and cmd[1].split("=")[0] in stardb.getLabels() and os.path.isfile(cmd[1].split("=")[1]):
-						com = cmd[1].split("=")
-						stardb.select_star(com[1],com[0])
+					# ref.star:_rlnA[var],_rlnB[var]
+					file = cmd[1].split(":")[0]
+					options = cmd[1].split(":")[1].split(",")
+					if os.path.isfile(file):
+						# Load the reference STAR file
+						# EXCEPTION HANDLING!
+						stardb.star2db(file)
+						if stardb.getTableNum(file) == 1:
+							
+							pass
+
+						else:
+							pass
+						# check number of tables
+
+
+						# extract variations (if present)
+						for i in range(len(options)):
+							o = options[i].split("[")
+							if len(o) == 1:
+								options[i] = [o[0],0]
+							else:
+								try:
+									num = float(o[1].replace("]",""))
+									options[i] = [o[0],num]
+								except ValueError:
+									stardb.out("The variation value must be a number.")
+									options[i] = None
+						print file
+						print options
+						stardb.select_star(file, options)
 					else:
-						stardb.out( "Your input is malformed (--select_star).")
+						stardb.out("The reference file "+str(file)+" does not exist.")
+					
 
 				elif cmd[0] == "select_fancy":
 					# _rlnLabelA,_rlnLabelB=ref.star[variationA,variationB]
@@ -382,7 +410,7 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
-# - replace star does not seem to work as expected... also the logic is still a bit weird
+# - replace_star does not seem to work as expected... also the logic is still a bit weird
 
 # Todo:
 # - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
@@ -398,3 +426,13 @@ if hasattr(args, "ordered_args"):
 
 # Notes:
 # > replace_regex: the stupid case of someone replacing a string into a float field?
+
+
+# Re-implement the select_star and replace_star functions in the following way:
+#
+# --select_star starfile.star:_rlnLabel[var],_rlnLabel[var]
+# this means match the current columns with the ones given in the starfile including some variation
+#
+# --replace_star _rlnLabelA=starfile.star:_rlnA[var]m_rlnB[var]
+#
+# this makes --select_fancy obsolete since it unifies --select_star and --select_fancy

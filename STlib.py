@@ -257,19 +257,26 @@ class StarTool:
 	def select_regex(self, col, pattern):
 		self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" REGEXP '"+pattern+"'")
 
-	def select_star(self, starfile, col):
-	# Selects all entries where $col matches with $col in the other star file
-		# Load the starfile into the DB
-		self.star2db(starfile)
-		# Extract name of starfile
-		if len(self.STARTABLES[starfile]) == 1:
-			if col in self.getLabels(self.STARTABLES[starfile][0]):
-				self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" IN (SELECT \""+col+"\" FROM \""+self.STARTABLES[starfile][0]+"\")")
-			else:
-				print "Column "+col+" does not exist in "+starfile
-		else:
-			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
+	def select_star(self, starfile, opts):
+	# 
+		# retrieve the tablename of the reference star file
+		reftable = self.STARTABLES[starfile][0]
+		# go through the options
+		q = "SELECT * FROM ? AS t1 WHERE 1"
+		for option in opts:
+			# Exclude the ignored ones
+			if option != None:
+				if option[1] != 0:
+					#Testing existensce of such parameters in the other table
+					q += " AND EXISTS (SELECT * FROM "+reftable+" AS t2 WHERE t2."+option[0]+" BETWEEN t1."+option[0]+"-"+str(option[1])+" AND t1."+option[0]+"+"+str(option[1])+")" 
+					print q
+				else:
+					q += " AND EXISTS (SELECT )"
+# SELECT * FROM table WHERE 				
+		pass
 
+	def getTableNum(self, starfile):
+		return len(self.STARTABLES[starfile])
 			
 
 	def select_fancy(self, starfile, col, ran):
@@ -460,6 +467,8 @@ class StarTool:
 		self.db.commit()
 
 	def replace_star(self, col, starfile):
+		# implement a new syntax here:
+		# _rlnLabel=starfile.star:rlnLabelA[var],_rlnlabelB[var] (tha latter are the matching ones, can be used with a variance value)
 		# Get the reference column from the very last self.QUERY entry
 		last = re.search("^SELECT .+? FROM .+? WHERE (.+?) .*$",self.QUERY[-1])
 		refcol = last.group(1)
