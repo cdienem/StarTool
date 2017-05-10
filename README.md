@@ -16,7 +16,9 @@ Coming soon...
 
 ## Known Issues
 
-None so far. If you encounter any issues, feel free to contact me.
+--replace_star and --select_star are currently re-implemented. They might not yield the expected behaivior.
+
+If you encounter any issues, feel free to contact me.
 
 ## Syntax
 ### General usage/Input
