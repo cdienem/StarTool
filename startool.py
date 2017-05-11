@@ -28,8 +28,7 @@ parser.add_argument('--silent', action=store_ordered, nargs='?', metavar="None")
 parser.add_argument('--use', action=store_ordered, metavar="tablename")
 parser.add_argument('--select', action=store_ordered, metavar="_rlnLabel\><=value")
 parser.add_argument('--select_regex', action=store_ordered, metavar="_rlnlabel='regular expression'")
-parser.add_argument('--select_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
-parser.add_argument('--select_fancy', action=store_ordered, metavar="_rlnLabelA,_rlnLabelB=starfile.star[variationA,variationB]")
+parser.add_argument('--select_star', action=store_ordered, metavar="starfile.star:_rlnLabelA[variationA],_rlnLabelB")
 parser.add_argument('--release', action=store_ordered, nargs='?', metavar="None")
 parser.add_argument('--deselect', action=store_ordered, nargs='?', metavar="None")
 parser.add_argument('--sort', action=store_ordered, metavar="_rlnLabel")
@@ -48,6 +47,7 @@ parser.add_argument('--rename_table', action=store_ordered, metavar="new_tablena
 parser.add_argument('--replace', action=store_ordered, metavar="_rlnLabel=value")
 parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search'%'replace'")
 parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
+
 # Deletes stuff from the local selection
 parser.add_argument('--delete', action=store_ordered, nargs='?', metavar="None")
 
@@ -319,21 +319,7 @@ if hasattr(args, "ordered_args"):
 						stardb.out("The reference file "+str(file)+" does not exist.")
 					
 
-				elif cmd[0] == "select_fancy":
-					# _rlnLabelA,_rlnLabelB=ref.star[variationA,variationB]
-					# ^((,?_rln\w+)+)=(\w+\.star)\[?((,? *[0-9.]+ *)+)\]$
-					# group 1: lanbels
-					# group 3: starfile
-					# group 4: variations
-					pat = "^((,?_rln\w+)+)=(\w+\.star)\[?((,? *[0-9.]+ *)+)\]$"
-					match = re.search(pat,cmd[1])
-					if match != None and os.path.isfile(match.group(3)):
-						lab = match.group(1).split(",")
-						star = match.group(3)
-						varia = match.group(4).split(",")
-						stardb.select_fancy(star,lab,varia)
-					else:
-						stardb.out( "Your input is malformed (--select_fancy).")
+
 
 				elif cmd[0] == "replace":
 					# _rlnLabel=valueABC
@@ -353,12 +339,43 @@ if hasattr(args, "ordered_args"):
 						stardb.out( "Column "+com[0]+" does not exist (--replace_regex).")
 
 				elif cmd[0] == "replace_star":
-					# _rlnLabel=ref.star
-					com = cmd[1].split("=")
-					if com[0] in stardb.getLabels() and os.path.isfile(com[1]):
-						stardb.replace_star(com[0],com[1])
+					# _rlnLabel=ref.star:_rlnA[var],_rlnB[var]
+					label = cmd[1].split("=")[0] 
+					file = cmd[1].split("=")[1].split(":")[0]
+					options = cmd[1].split(":")[1].split(",")
+					if label in stardb.getLabels(): 
+						if os.path.isfile(file):
+							# Load the reference STAR file
+							# EXCEPTION HANDLING!
+							stardb.star2db(file)
+							if stardb.getTableNum(file) == 1:
+								
+								pass
+
+							else:
+								pass
+							# check number of tables
+
+
+							# extract variations (if present)
+							for i in range(len(options)):
+								o = options[i].split("[")
+								if len(o) == 1:
+									options[i] = [o[0],0]
+								else:
+									try:
+										num = float(o[1].replace("]",""))
+										options[i] = [o[0],num]
+									except ValueError:
+										stardb.out("The variation value must be a number.")
+										options[i] = None
+							print file
+							print options
+							stardb.replace_star(label, file, options)
+						else:
+							stardb.out("The reference file "+str(file)+" does not exist.")
 					else:
-						print "Column "+stardb.getCurrent()+"."+com[0]+" does not exist (--replace_star)"
+						stardb.out("Column does not exist.")
 
 				elif cmd[0] == "delete":#
 					# None, calls release after execution
@@ -433,6 +450,8 @@ if hasattr(args, "ordered_args"):
 # --select_star starfile.star:_rlnLabel[var],_rlnLabel[var]
 # this means match the current columns with the ones given in the starfile including some variation
 #
+
 # --replace_star _rlnLabelA=starfile.star:_rlnA[var]m_rlnB[var]
-#
+# replaces values of _rlnLabel with values from the starfile with the matching selection of the stuff behind 
+
 # this makes --select_fancy obsolete since it unifies --select_star and --select_fancy

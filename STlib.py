@@ -280,33 +280,6 @@ class StarTool:
 	def getTableNum(self, starfile):
 		return len(self.STARTABLES[starfile])
 			
-
-	def select_fancy(self, starfile, col, ran):
-	# Requested by Dmitri
-	# Does some fancy stuff
-	# 
-	# Selects according to a close match with things in the star file given
-		# Load the starfile into the DB
-		self.star2db(starfile)
-
-		# Get the reference column from the very last self.QUERY entry
-		last = re.search("^SELECT .+? FROM .+? WHERE (.+?) .*$",self.QUERY[-1])
-		refcol = last.group(1)
-		refcol = refcol.replace('"', "") #remove quotes
-
-		if len(self.STARTABLES[starfile]) == 1:
-			if set(col) <= set(self.getLabels(self.STARTABLES[starfile][0])):
-				q = "SELECT * FROM ? AS t1 WHERE"
-				for i in range(len(col)):
-					if i > 0:
-						q += " AND"
-					q += " \"t1."+col[i]+"\" IN (SELECT \""+col[i]+"\",\""+refcol+"\" FROM \""+self.STARTABLES[starfile][0]+"\" AS t2 WHERE \"t2."+refcol+"\"=\"t1."+refcol+"\" AND \"t2."+col[i]+"\" BETWEEN t1."+col[i]+"-"+str(ran[0])+" AND t1."+col[i]+"+"+str(ran[1])+")"
-				self.QUERY.append(q)
-			else:
-				print "Columns "+str(col)+" does not exist in "+starfile
-		else:
-			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
-
 	def assembleSelector(self):
 		# this assembles a nested query for the selections that have been made
 		# replaces "?" by the current table (for the first entry) or by the 
@@ -378,6 +351,7 @@ class StarTool:
 		q = "ALTER TABLE \""+self.CURRENT+"\" RENAME TO \""+newtablename+"\""
 		self.CURSOR.execute(q)
 		self.db.commit()
+		# Rename in STARTABLES
 		for t in self.STARTABLES.keys():
 			if self.CURRENT in self.STARTABLES[t]:
 				self.STARTABLES[t][self.STARTABLES[t].index(self.CURRENT)] = newtablename
@@ -468,29 +442,40 @@ class StarTool:
 		self.CURSOR.execute(q)
 		self.db.commit()
 
-	def replace_star(self, col, starfile):
-		# implement a new syntax here:
-		# _rlnLabel=starfile.star:rlnLabelA[var],_rlnlabelB[var] (tha latter are the matching ones, can be used with a variance value)
-		# Get the reference column from the very last self.QUERY entry
-		last = re.search("^SELECT .+? FROM .+? WHERE (.+?) .*$",self.QUERY[-1])
-		refcol = last.group(1)
-		refcol = refcol.replace('"',"")
-		# Load the starfile into the DB
-		self.star2db(starfile)
-		# Extract name of starfile
-		name = starfile.split(".")
-		if len(self.STARTABLES[starfile]) == 1:
-			if col  in self.getLabels(self.STARTABLES[starfile][0]):
-					# This one has the reference col
-					print "UPDATE \""+self.CURRENT+"\" SET \""+col+"\" = (SELECT \""+self.STARTABLES[starfile][0]+"."+col+"\" FROM \""+self.STARTABLES[starfile][0]+"\" WHERE \""+self.STARTABLES[starfile][0]+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\" )"
-					#WHERE EXISTS (SELECT * FROM \""+",".join(self.getLabels(self.STARTABLES[starfile][0]))+"\" WHERE \""+",".join(self.getLabels(self.STARTABLES[starfile][0]))+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\") AND \""+self.CURRENT+"."+refcol+"\" IN (SELECT \""+refcol+"\" FROM ("+self.assembleSelector()+"))
-					#self.CURSOR.execute(q)
-					#self.db.commit()
-					#Todo: drop the reference table at some point?
-			else:
-				print "Columns "+str(col)+" does not exist in "+starfile
-		else:
-			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
+	def replace_star(self, col, starfile, opts):
+		# Starfile should be pre-loaded with star2db()
+		# Retrieve the tablename of the reference star file
+		reftable = self.STARTABLES[starfile][0]
+		# Prepare query
+
+		# UPDATE t1.col = (select t2.col FROM t2 AS t2 WHERE t2.col = t1.col)
+
+		q1 = "UPDATE \""+self.CURRENT+"\" SET "+col+" = (SELECT "+reftable+"."+col+" FROM "+reftable+" WHERE 1"
+		q2 = " WHERE EXISTS (SELECT * FROM \""+reftable+"\" WHERE 1"
+		# Go through the options
+		for option in opts:
+			# Exclude the ignored ones
+			if option != None:
+				if option[1] != 0:
+					#Testing existensce of such parameters in the other table
+					q1 += " AND "+reftable+"."+option[0]+" BETWEEN "+self.CURRENT+"."+option[0]+"-"+str(option[1])+" AND "+self.CURRENT+"."+option[0]+"+"+str(option[1])+"" 
+					q2 += " AND "+reftable+"."+option[0]+" BETWEEN "+self.CURRENT+"."+option[0]+"-"+str(option[1])+" AND "+self.CURRENT+"."+option[0]+"+"+str(option[1])+"" 
+					pass
+				else:
+					q1 += " AND "+reftable+"."+option[0]+"="+self.CURRENT+"."+option[0]+""
+					q2 += " AND "+reftable+"."+option[0]+"="+self.CURRENT+"."+option[0]+""
+					pass
+				
+		# Append to selector
+		q1 += ")"
+		q2 += ")"
+		
+		query = q1+q2
+		query += " AND "+self.CURRENT+".ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))"
+		print query
+		self.CURSOR.execute(query)
+		self.db.commit()
+		
 
 	def replace_regex(self, col, search, repl):
 		self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+col+"\"=replace("+col+",?,?) WHERE ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))",(search,repl,))
