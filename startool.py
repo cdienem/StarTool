@@ -427,11 +427,11 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
-# - replace_star does not seem to work as expected... also the logic is still a bit weird
 
 # Todo:
-# - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
+# - implement math functions (simple operations with columns like **, / + -)
 #     > pow missing
+
 # - implement split_by batch number
 #
 # - update readme with HTML
@@ -443,15 +443,3 @@ if hasattr(args, "ordered_args"):
 
 # Notes:
 # > replace_regex: the stupid case of someone replacing a string into a float field?
-
-
-# Re-implement the select_star and replace_star functions in the following way:
-#
-# --select_star starfile.star:_rlnLabel[var],_rlnLabel[var]
-# this means match the current columns with the ones given in the starfile including some variation
-#
-
-# --replace_star _rlnLabelA=starfile.star:_rlnA[var]m_rlnB[var]
-# replaces values of _rlnLabel with values from the starfile with the matching selection of the stuff behind 
-
-# this makes --select_fancy obsolete since it unifies --select_star and --select_fancy

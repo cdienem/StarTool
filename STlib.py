@@ -552,9 +552,15 @@ class StarTool:
 			self.CURSOR.execute("SELECT COUNT(*) FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 			num = self.CURSOR.fetchone()[0]
 			per_batch = int(num) // int(batch)
-			for i in range (batch):
-				print "LIMIT "+str(per_batch)+" OFFSET "+str(per_batch*i+1)
-			pass
+			for i in range (0, batch):
+				start = i*per_batch+1
+				if i != batch-1:
+					stop = start+per_batch-1
+				else:
+					stop = num
+				self.subset([start,stop])
+				self.writeSelection("batch_"+str(i+1)+".star")
+				del(self.QUERY[-1])
 		
 
 	def writeSelection(self, starfilename, mode="w+"):
