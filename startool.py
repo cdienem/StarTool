@@ -15,9 +15,7 @@ class store_ordered(argparse.Action):
         previous.append((self.dest, values))
         setattr(namespace, 'ordered_args', previous)
 
-parser = argparse.ArgumentParser(prog="startool", 
-								description="Swiss army knife for editing star files",
-								epilog="")
+parser = argparse.ArgumentParser(prog="startool", description="Swiss army knife for editing star files", epilog="")
 
 parser.add_argument('inputfile', action='store')
 
@@ -30,8 +28,7 @@ parser.add_argument('--silent', action=store_ordered, nargs='?', metavar="None")
 parser.add_argument('--use', action=store_ordered, metavar="tablename")
 parser.add_argument('--select', action=store_ordered, metavar="_rlnLabel\><=value")
 parser.add_argument('--select_regex', action=store_ordered, metavar="_rlnlabel='regular expression'")
-parser.add_argument('--select_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
-parser.add_argument('--select_fancy', action=store_ordered, metavar="_rlnLabelA,_rlnLabelB=starfile.star[variationA,variationB]")
+parser.add_argument('--select_star', action=store_ordered, metavar="starfile.star:_rlnLabelA[variationA],_rlnLabelB")
 parser.add_argument('--release', action=store_ordered, nargs='?', metavar="None")
 parser.add_argument('--deselect', action=store_ordered, nargs='?', metavar="None")
 parser.add_argument('--sort', action=store_ordered, metavar="_rlnLabel")
@@ -48,8 +45,9 @@ parser.add_argument('--rename_table', action=store_ordered, metavar="new_tablena
 
 #Local Editors
 parser.add_argument('--replace', action=store_ordered, metavar="_rlnLabel=value")
-parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search%replace'")
+parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search'%'replace'")
 parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
+
 # Deletes stuff from the local selection
 parser.add_argument('--delete', action=store_ordered, nargs='?', metavar="None")
 
@@ -57,11 +55,11 @@ parser.add_argument('--merge', action=store_ordered, metavar="starfilename.star"
 
 #Special
 parser.add_argument('--query', action=store_ordered, metavar="SQLite query")
-parser.add_argument('--math', action=store_ordered) # still experimental
+parser.add_argument('--math', action=store_ordered, metavar="_rlnLabel=A operator B") # still experimental
 
 # Output
-parser.add_argument('--split_by', action=store_ordered)
-parser.add_argument('--writef', action=store_ordered)
+parser.add_argument('--split_by', action=store_ordered, metavar="_rlnLabel:number of batches")
+parser.add_argument('--writef', action=store_ordered, metavar="starfilename.star")
 parser.add_argument('--write_selection', action=store_ordered, metavar="starfilename.star")
 parser.add_argument('--write', action=store_ordered, metavar="starfilename.star")
 
@@ -173,11 +171,18 @@ if hasattr(args, "ordered_args"):
 
 		elif cmd[0] == "debug":
 			# prints some debug information
+
 			stardb.debug()
 
 		elif cmd[0] == "split_by":
-			if cmd[1] in stardb.getLabels():
-				stardb.splitBy(cmd[1])
+			c = cmd[1].split(":")
+			if len(c) == 1:
+				batch = -1;
+			else:
+				batch = int(c[1])
+
+			if c[0] in stardb.getLabels():
+				stardb.splitBy(cmd[1],batch)
 			else:
 				stardb.out("Please provide a column name that exists.")
 
@@ -279,28 +284,42 @@ if hasattr(args, "ordered_args"):
 						stardb.out( "Your input is malformed (--select_regex).")
 
 				elif cmd[0] == "select_star":
-					# _rlnLabel=ref.star
-					if cmd[1] != None and cmd[1].split("=")[0] in stardb.getLabels() and os.path.isfile(cmd[1].split("=")[1]):
-						com = cmd[1].split("=")
-						stardb.select_star(com[1],com[0])
-					else:
-						stardb.out( "Your input is malformed (--select_star).")
+					# ref.star:_rlnA[var],_rlnB[var]
+					file = cmd[1].split(":")[0]
+					options = cmd[1].split(":")[1].split(",")
+					if os.path.isfile(file):
+						# Load the reference STAR file
+						# EXCEPTION HANDLING!
+						stardb.star2db(file)
+						if stardb.getTableNum(file) == 1:
+							
+							pass
 
-				elif cmd[0] == "select_fancy":
-					# _rlnLabelA,_rlnLabelB=ref.star[variationA,variationB]
-					# ^((,?_rln\w+)+)=(\w+\.star)\[?((,? *[0-9.]+ *)+)\]$
-					# group 1: lanbels
-					# group 3: starfile
-					# group 4: variations
-					pat = "^((,?_rln\w+)+)=(\w+\.star)\[?((,? *[0-9.]+ *)+)\]$"
-					match = re.search(pat,cmd[1])
-					if match != None and os.path.isfile(match.group(3)):
-						lab = match.group(1).split(",")
-						star = match.group(3)
-						varia = match.group(4).split(",")
-						stardb.select_fancy(star,lab,varia)
+						else:
+							pass
+						# check number of tables
+
+
+						# extract variations (if present)
+						for i in range(len(options)):
+							o = options[i].split("[")
+							if len(o) == 1:
+								options[i] = [o[0],0]
+							else:
+								try:
+									num = float(o[1].replace("]",""))
+									options[i] = [o[0],num]
+								except ValueError:
+									stardb.out("The variation value must be a number.")
+									options[i] = None
+						print file
+						print options
+						stardb.select_star(file, options)
 					else:
-						stardb.out( "Your input is malformed (--select_fancy).")
+						stardb.out("The reference file "+str(file)+" does not exist.")
+					
+
+
 
 				elif cmd[0] == "replace":
 					# _rlnLabel=valueABC
@@ -320,12 +339,43 @@ if hasattr(args, "ordered_args"):
 						stardb.out( "Column "+com[0]+" does not exist (--replace_regex).")
 
 				elif cmd[0] == "replace_star":
-					# _rlnLabel=ref.star
-					com = cmd[1].split("=")
-					if com[0] in stardb.getLabels() and os.path.isfile(com[1]):
-						stardb.replace_star(com[0],com[1])
+					# _rlnLabel=ref.star:_rlnA[var],_rlnB[var]
+					label = cmd[1].split("=")[0] 
+					file = cmd[1].split("=")[1].split(":")[0]
+					options = cmd[1].split(":")[1].split(",")
+					if label in stardb.getLabels(): 
+						if os.path.isfile(file):
+							# Load the reference STAR file
+							# EXCEPTION HANDLING!
+							stardb.star2db(file)
+							if stardb.getTableNum(file) == 1:
+								
+								pass
+
+							else:
+								pass
+							# check number of tables
+
+
+							# extract variations (if present)
+							for i in range(len(options)):
+								o = options[i].split("[")
+								if len(o) == 1:
+									options[i] = [o[0],0]
+								else:
+									try:
+										num = float(o[1].replace("]",""))
+										options[i] = [o[0],num]
+									except ValueError:
+										stardb.out("The variation value must be a number.")
+										options[i] = None
+							print file
+							print options
+							stardb.replace_star(label, file, options)
+						else:
+							stardb.out("The reference file "+str(file)+" does not exist.")
 					else:
-						print "Column "+stardb.getCurrent()+"."+com[0]+" does not exist (--replace_star)"
+						stardb.out("Column does not exist.")
 
 				elif cmd[0] == "delete":#
 					# None, calls release after execution
@@ -377,17 +427,31 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
-
+# - replace_star does not seem to work as expected... also the logic is still a bit weird
 
 # Todo:
-# - improve the show screen -> only columns!
-# - implement merge_clean function (checks for duplicates before insert into tmp)
 # - implement math functions (simple operations with columns like **, / + -, use compilation of expressions by python compiler.parse)
-# - refactor program startup
-# - rewrite the editors that work on selection to use the4 ROWID for better identification of entries (UPDATE table SET x = y WHERE ROWID...
-#		-> for this change the usage of db cursors in a way that there is only a single cursor created (otherwise rowid is not visible)
+#     > pow missing
+# - implement split_by batch number
+#
+# - update readme with HTML
+#
+# - (v1.3) think about some unified error handling strategy
+#
+# - (v1.3) use an SQL table for the STARTABLES?
+
 
 # Notes:
-# > replace functions in context of selectors -> is fine but a bit weird becaue the replace does not release the selector. If one changes the value of the previous selector, it will be an emptsy selectionb afterwards
-# > all writer methods need a table selected by --use the corresponding star file will be written
 # > replace_regex: the stupid case of someone replacing a string into a float field?
+
+
+# Re-implement the select_star and replace_star functions in the following way:
+#
+# --select_star starfile.star:_rlnLabel[var],_rlnLabel[var]
+# this means match the current columns with the ones given in the starfile including some variation
+#
+
+# --replace_star _rlnLabelA=starfile.star:_rlnA[var]m_rlnB[var]
+# replaces values of _rlnLabel with values from the starfile with the matching selection of the stuff behind 
+
+# this makes --select_fancy obsolete since it unifies --select_star and --select_fancy

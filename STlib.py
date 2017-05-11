@@ -163,9 +163,16 @@ class StarTool:
 	def showTable(self):
 	# Simple debugging method to dump the content of a table
 	# TODO: Implement a nicer printing
+		l = ""
+		for label in self.getLabels():
+			l = l+str(label)+"  "
+		self.out(l)
 		for row in self.CURSOR.execute("SELECT * FROM ("+self.assembleSelector()+")"):
 			# this excludes the first field which is the ROWID
-			print row[1:]
+			o = ""
+			for field in row[1:]:
+				o = o+str(field)+"  "
+			self.out(o)
 
 	def query(self, q):
 	# This method allows experienced users to send SQL querys
@@ -250,47 +257,29 @@ class StarTool:
 	def select_regex(self, col, pattern):
 		self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" REGEXP '"+pattern+"'")
 
-	def select_star(self, starfile, col):
-	# Selects all entries where $col matches with $col in the other star file
-		# Load the starfile into the DB
-		self.star2db(starfile)
-		# Extract name of starfile
-		if len(self.STARTABLES[starfile]) == 1:
-			if col in self.getLabels(self.STARTABLES[starfile][0]):
-				self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" IN (SELECT \""+col+"\" FROM \""+self.STARTABLES[starfile][0]+"\")")
-			else:
-				print "Column "+col+" does not exist in "+starfile
-		else:
-			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
+	def select_star(self, starfile, opts):
+		# Starfile should be pre-loaded with star2db()
+		# Retrieve the tablename of the reference star file
+		reftable = self.STARTABLES[starfile][0]
+		# Prepare query
+		q = "SELECT * FROM ? AS t1 WHERE EXISTS (SELECT * FROM "+reftable+" AS t2 WHERE 1"
+		# Go through the options
+		for option in opts:
+			# Exclude the ignored ones
+			if option != None:
+				if option[1] != 0:
+					#Testing existensce of such parameters in the other table
+					q += " AND t2."+option[0]+" BETWEEN t1."+option[0]+"-"+str(option[1])+" AND t1."+option[0]+"+"+str(option[1])+"" 
+				else:
+					q += " AND t2."+option[0]+"=t1."+option[0]+""
+		# Add closing bracket
+		q+=")"
+		# Append to selector
+		self.QUERY.append(q)
 
+	def getTableNum(self, starfile):
+		return len(self.STARTABLES[starfile])
 			
-
-	def select_fancy(self, starfile, col, ran):
-	# Requested by Dmitri
-	# Does some fancy stuff
-	# 
-	# Selects according to a close match with things in the star file given
-		# Load the starfile into the DB
-		self.star2db(starfile)
-
-		# Get the reference column from the very last self.QUERY entry
-		last = re.search("^SELECT .+? FROM .+? WHERE (.+?) .*$",self.QUERY[-1])
-		refcol = last.group(1)
-		refcol = refcol.replace('"', "") #remove quotes
-
-		if len(self.STARTABLES[starfile]) == 1:
-			if set(col) <= set(self.getLabels(self.STARTABLES[starfile][0])):
-				q = "SELECT * FROM ? AS t1 WHERE"
-				for i in range(len(col)):
-					if i > 0:
-						q += " AND"
-					q += " \"t1."+col[i]+"\" IN (SELECT \""+col[i]+"\",\""+refcol+"\" FROM \""+self.STARTABLES[starfile][0]+"\" AS t2 WHERE \"t2."+refcol+"\"=\"t1."+refcol+"\" AND \"t2."+col[i]+"\" BETWEEN t1."+col[i]+"-"+str(ran[0])+" AND t1."+col[i]+"+"+str(ran[1])+")"
-				self.QUERY.append(q)
-			else:
-				print "Columns "+str(col)+" does not exist in "+starfile
-		else:
-			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
-
 	def assembleSelector(self):
 		# this assembles a nested query for the selections that have been made
 		# replaces "?" by the current table (for the first entry) or by the 
@@ -362,6 +351,7 @@ class StarTool:
 		q = "ALTER TABLE \""+self.CURRENT+"\" RENAME TO \""+newtablename+"\""
 		self.CURSOR.execute(q)
 		self.db.commit()
+		# Rename in STARTABLES
 		for t in self.STARTABLES.keys():
 			if self.CURRENT in self.STARTABLES[t]:
 				self.STARTABLES[t][self.STARTABLES[t].index(self.CURRENT)] = newtablename
@@ -452,30 +442,47 @@ class StarTool:
 		self.CURSOR.execute(q)
 		self.db.commit()
 
-	def replace_star(self, col, starfile):
-		# Get the reference column from the very last self.QUERY entry
-		last = re.search("^SELECT .+? FROM .+? WHERE (.+?) .*$",self.QUERY[-1])
-		refcol = last.group(1)
-		refcol = refcol.replace('"',"")
-		# Load the starfile into the DB
-		self.star2db(starfile)
-		# Extract name of starfile
-		name = starfile.split(".")
-		if len(self.STARTABLES[starfile]) == 1:
-			if col  in self.getLabels(self.STARTABLES[starfile][0]):
-					# This one has the reference col
-					q = "UPDATE \""+self.CURRENT+"\" SET \""+col+"\" = (SELECT \""+self.getLabels(self.STARTABLES[starfile][0])+"."+col+"\" FROM \""+self.getLabels(self.STARTABLES[starfile][0])+"\" WHERE \""+self.getLabels(self.STARTABLES[starfile][0])+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\" ) WHERE EXISTS (SELECT * FROM \""+self.getLabels(self.STARTABLES[starfile][0])+"\" WHERE \""+self.getLabels(self.STARTABLES[starfile][0])+"."+refcol+"\" = \""+self.CURRENT+"."+refcol+"\") AND \""+self.CURRENT+"."+refcol+"\" IN (SELECT \""+refcol+"\" FROM ("+self.assembleSelector()+"))"
-					self.CURSOR.execute(q)
-					self.db.commit()
-					#Todo: drot the reference table at some point?
-			else:
-				print "Columns "+str(col)+" does not exist in "+starfile
-		else:
-			print "There is more than one tables in "+starfile+". Cannot execute --select_star."
+	def replace_star(self, col, starfile, opts):
+		# Starfile should be pre-loaded with star2db()
+		# Retrieve the tablename of the reference star file
+		reftable = self.STARTABLES[starfile][0]
+		# Prepare query
+
+		# UPDATE t1.col = (select t2.col FROM t2 AS t2 WHERE t2.col = t1.col)
+
+		q1 = "UPDATE \""+self.CURRENT+"\" SET "+col+" = (SELECT "+reftable+"."+col+" FROM "+reftable+" WHERE 1"
+		q2 = " WHERE EXISTS (SELECT * FROM \""+reftable+"\" WHERE 1"
+		# Go through the options
+		for option in opts:
+			# Exclude the ignored ones
+			if option != None:
+				if option[1] != 0:
+					#Testing existensce of such parameters in the other table
+					q1 += " AND "+reftable+"."+option[0]+" BETWEEN "+self.CURRENT+"."+option[0]+"-"+str(option[1])+" AND "+self.CURRENT+"."+option[0]+"+"+str(option[1])+"" 
+					q2 += " AND "+reftable+"."+option[0]+" BETWEEN "+self.CURRENT+"."+option[0]+"-"+str(option[1])+" AND "+self.CURRENT+"."+option[0]+"+"+str(option[1])+"" 
+					pass
+				else:
+					q1 += " AND "+reftable+"."+option[0]+"="+self.CURRENT+"."+option[0]+""
+					q2 += " AND "+reftable+"."+option[0]+"="+self.CURRENT+"."+option[0]+""
+					pass
+				
+		# Append to selector
+		q1 += ")"
+		q2 += ")"
+		
+		query = q1+q2
+		query += " AND "+self.CURRENT+".ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))"
+		print query
+		self.CURSOR.execute(query)
+		self.db.commit()
+		
 
 	def replace_regex(self, col, search, repl):
 		self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+col+"\"=replace("+col+",?,?) WHERE ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))",(search,repl,))
 		self.db.commit()
+
+
+
 
 	def deleteSelection(self):
 		q = "DELETE FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))"
@@ -506,6 +513,8 @@ class StarTool:
 			pass
 		pass
 
+
+
 	def countRows(self, table):
 		self.CURSOR.execute("select count(*) from \""+table+"\"")
 		return str(self.CURSOR.fetchone()[0])
@@ -521,19 +530,31 @@ class StarTool:
 			if len(self.STARTABLES.keys()) > 1:
 				print "\n\n"
 
-	def splitBy(self, colname):
-		# get unique values, select from all of them and write out the selections
-		q = self.CURSOR.execute("SELECT DISTINCT \""+colname+"\" FROM \""+self.CURRENT+"\"")
-		uniques = q.fetchall()
-		# overrides all selections !
-		for entry in uniques:
-			self.deselect()
-			self.select(colname , "=", entry[0])
-			# in case of filenames
-			if "/" in str(entry[0]):
-				name = str(entry[0]).rsplit("/",1)[1]
-			self.writeSelection(name+".star")
-		self.deselect()
+	def splitBy(self, colname, batch=-1):
+# Two ways of splitting: by uniques or into batches
+		if batch == -1:
+			# Works on the current selection
+			q = self.CURSOR.execute("SELECT DISTINCT \""+colname+"\" FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))" )
+			uniques = q.fetchall()
+			for entry in uniques:
+				# Adds another layer of selection
+				self.select(colname , "=", entry[0])
+				# In case of filenames in uniques
+				if "/" in str(entry[0]):
+					name = str(entry[0]).rsplit("/",1)[1]
+				else:
+					name = str(entry[0])
+				self.writeSelection(name+".star")
+				# Need to remove the last selection from the QUERY in order to proceed to the next unique
+				del(self.QUERY[-1])
+		else:
+			# count current selection
+			self.CURSOR.execute("SELECT COUNT(*) FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			num = self.CURSOR.fetchone()[0]
+			per_batch = int(num) // int(batch)
+			for i in range (batch):
+				print "LIMIT "+str(per_batch)+" OFFSET "+str(per_batch*i+1)
+			pass
 		
 
 	def writeSelection(self, starfilename, mode="w+"):
