@@ -26,14 +26,20 @@ parser.add_argument('--silent', action=store_ordered, nargs='?', metavar="None")
 
 #Selectors
 parser.add_argument('--use', action=store_ordered, metavar="tablename")
+
 parser.add_argument('--select', action=store_ordered, metavar="_rlnLabel\><=value")
 parser.add_argument('--select_regex', action=store_ordered, metavar="_rlnlabel='regular expression'")
 parser.add_argument('--select_star', action=store_ordered, metavar="starfile.star:_rlnLabelA[variationA],_rlnLabelB")
+parser.add_argument('--subset', action=store_ordered, metavar="start:end")
+
 parser.add_argument('--release', action=store_ordered, nargs='?', metavar="None")
 parser.add_argument('--deselect', action=store_ordered, nargs='?', metavar="None")
+
+#Sorters
 parser.add_argument('--sort', action=store_ordered, metavar="_rlnLabel")
 parser.add_argument('--tros', action=store_ordered, metavar="_rlnLabel")
-parser.add_argument('--subset', action=store_ordered, metavar="start:end")
+
+
 
 #Global Editors
 parser.add_argument('--add_col', action=store_ordered, metavar="_rlnNewLabel")
@@ -46,12 +52,12 @@ parser.add_argument('--rename_table', action=store_ordered, metavar="new_tablena
 #Local Editors
 parser.add_argument('--replace', action=store_ordered, metavar="_rlnLabel=value")
 parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search'%'replace'")
-parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star")
+parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star:_rlnRefLabelA[variationA],_rlnRefLabelB[variationB]")
 
 # Deletes stuff from the local selection
 parser.add_argument('--delete', action=store_ordered, nargs='?', metavar="None")
 
-parser.add_argument('--merge', action=store_ordered, metavar="starfilename.star")
+
 
 #Special
 parser.add_argument('--query', action=store_ordered, metavar="SQLite query")
@@ -59,9 +65,11 @@ parser.add_argument('--math', action=store_ordered, metavar="_rlnLabel=A operato
 
 # Output
 parser.add_argument('--split_by', action=store_ordered, metavar="_rlnLabel:number of batches")
+parser.add_argument('--merge', action=store_ordered, metavar="starfilename.star")
 parser.add_argument('--writef', action=store_ordered, metavar="starfilename.star")
-parser.add_argument('--write_selection', action=store_ordered, metavar="starfilename.star")
+parser.add_argument('--writef_selection', action=store_ordered, metavar="starfilename.star")
 parser.add_argument('--write', action=store_ordered, metavar="starfilename.star")
+parser.add_argument('--write_selection', action=store_ordered, metavar="starfilename.star")
 
 # parse the arguments
 args = parser.parse_args()
@@ -431,15 +439,9 @@ if hasattr(args, "ordered_args"):
 # Todo:
 # - implement math functions (simple operations with columns like **, / + -)
 #     > pow missing
-
-# - implement split_by batch number
 #
 # - update readme with HTML
 #
-# - (v1.3) think about some unified error handling strategy
-#
-# - (v1.3) use an SQL table for the STARTABLES?
-
 
 # Notes:
 # > replace_regex: the stupid case of someone replacing a string into a float field?
