@@ -6,18 +6,17 @@
 * <a href="#setup">Setup</a>
   * <a href="#unix-based-systems-including-the-partially-eaten-fruit">Unix based systems</a>
   * <a href="#windows">Windows</a>
-
-Syntax
-  General usage and input
-  Information
-  Data display
-  Selecting subset of your data
-  Global editors
-  Local editors
-  Split and merge operations
-  Output
-  Special
-Usage examples
+* <a href="#syntax">Syntax</a>
+  * <a href="#general-usage-and-input">General usage and input</a>
+  * <a href="#information">Information</a>
+  * <a href="#data-display">Data display</a>
+  * <a href="#selecting-subsets-of-data">Selecting subsets of data</a>
+  * <a href="#global-editors">Global editors</a>
+  * <a href="#local-editors">Local editors</a>
+  * <a href="#split-and-merge-operations">Split and merge operations</a>
+  * <a href="#output">Output</a>
+  * <a href="#special">Special</a>
+* <a href="#usage-examples">Usage examples</a>
 
 ## Concept
 The StarTool executes commands for selecting and editing data in a Relion STAR file. The given order of commands defines the order of execution meaning that editing commands work on previously made selections (except when changing global properties as tablenames, column names etc.). Such edited STAR files can be written out as a new starfile and subsets (selections) can be exported as well.
@@ -25,7 +24,7 @@ The StarTool executes commands for selecting and editing data in a Relion STAR f
 Behind the scenes, the STAR file is loaded into an in-memory SQLite3 database. Selections and edits are executed in that database and only when writing back into a file, the data will be retrieved from the database. Therefore, the StarTool could be easily extended as an interface for solutions where STAR files are stored in an SQLite database.
 
 ## Available commands
-feature list here
+feature list here as a table with short description
 
 ## Setup
 
@@ -68,7 +67,7 @@ used at the beginning to get an overview what data you actually have loaded.
 
 Prints the current content of the table in use. Selectors are applied.
 
-### Selecting subsets of your data
+### Selecting subsets of data
 
 <a name="use"><pre><b>--use tablename</b></pre></a>
 
