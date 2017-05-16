@@ -1,15 +1,15 @@
 # StarTool
 
 ## Table of contents
-<a href="#concept">Concept</a>
+*<a href="#concept">Concept</a>
 
-<a href="#available-commands">Available commands</a>
+*<a href="#available-commands">Available commands</a>
 
-<a href="#setup">Setup</a>
+*<a href="#setup">Setup</a>
 
-  <a href="#unix-based-systems-including-the-partially-eaten-fruit">Unix based systems</a>
+  *<a href="#unix-based-systems-including-the-partially-eaten-fruit">Unix based systems</a>
 
-  <a href="#windows">Windows</a>
+  *<a href="#windows">Windows</a>
 
 Syntax
   General usage and input
