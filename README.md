@@ -56,6 +56,7 @@ used at the beginning to get an overview what data you actually have loaded.
 Prints the current content of the table in use. Selectors are applied.
 
 ### Selecting subsets of your data
+***
 <a name="use">`--use tablename`</a>
 
 Defines, which table is used for subsequent operations. This must be used, if multiple data tables are read from one or more starfiles (you may check by using  `--info` ). Otherwise, the program uses the one table that was read in.
@@ -67,14 +68,14 @@ Selects a subset of the current table based on an operator comparison. Allowed a
 \>= '.
 
 Example: `--select _rlnWhatEver\>=1.3092`
-
+***
 <a name="select_regex">`--select_regex _rlnLabel=”regex”`</a>
 
 Selects a subset of the current table based on a regular expression match. Allowed are regular ex-
 pressions.
 
 Example: `--select _rlnWhatEver=”.*\.star$”`
-
+***
 <a name="select_star">`--select_star starfile.star:rlnA[variationA],_rlnB[variationB]`</a>
 
 Selects a subset of the current table based on entries in starfile.star. starfile.star should only have one data table.
@@ -82,7 +83,7 @@ Selects a subset of the current table based on entries in starfile.star. starfil
 Example: `--select_star reference.star:_rlnImageName,_rlnCoordinateX[10],_rlnCoordinateY[10]`
 
 Example: `--select _rlnMicrographName=* --select_fancy _rlnX,_rlnY=reference.star[10,10]`
-
+***
 <a name="release">`--release`</a>
 
 Releases the current table by unsetting the `--use` and `--select*` statements (changes made by editors will remain).
