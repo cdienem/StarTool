@@ -45,7 +45,7 @@ to load the STAR file into a local data base file. Changes made by editors will 
 Remember to remove that database file if you want to start over with the original data from your .STAR file.
 
 ### Information
-<a name="info">`--info`</a>
+<a name="info"><pre><b>--info</b></pre></a>
 
 Prints the current starfiles/tables loaded and their labels and record numbers. This should always be
 used at the beginning to get an overview what data you actually have loaded.
