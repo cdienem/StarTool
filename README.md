@@ -153,15 +153,23 @@ need update
 
 <a name="math">`--math _rlnLabel=a operator b`</a>
 
-Very basic math implementation. Operators can be `+`, `-`, `*`, `/` and `**` (power). `a` and `b` as used above can be either column names or numbers.
+Very basic math implementation. Operators can be `+`, `-`, `*`, `/`, `**` (power; `k**n` is k to the n-th power) and `//` (root; `n//k` is the n-th root of k). `a` and `b` as used above can be either column names or numbers.
 
 Example: `--math _rlnCoordinateX=_rlnCoordinateX-_rlnOriginX` 
 
-### Merging operations
+### Split and merge operations
 
 <a name="merge">`--merge outputfile.star`</a>
 
 Merges all currently loaded starfiles into outputfile.star. Only merges STAR files that contain one data table. Columns that do not overlap between all merged STAR files will be dropped (including data!). For more details see <a href="#usage">Usage examples</a>.
+
+<a name="split_by">`--split_by _rlnLabel:noOfBatches`</a>
+
+This splits the dataset into a specific number of batches. If no number of bathches is given, the data will be split into subbatches for each unique value of the given label. 
+
+Example 1: `--split_by _rlnDefocusU:2` will split the STAR file into two subfiles that contain one half of the defocus range each.
+
+Example 2: `--split_by _rlnMicrographName` will split the STAR file into separate files for each micrograph (e.g particles). Note that this can create a large number of files!2
 
 ### Output
 
@@ -195,4 +203,5 @@ This mutes the program (useful for automated procedures). Be aware that muting t
 This option is for experienced users that want to send their own SQLite queries. It will ignore any previously called selector methods. A SELECT statement will trigger a print of the called data.
 
 ## Usage Examples
-Coming soon.
+Split by defocus
+Batches
