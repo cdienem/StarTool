@@ -60,7 +60,7 @@ Prints the current content of the table in use. Selectors are applied.
 
 Defines, which table is used for subsequent operations. This must be used, if multiple data tables are read from one or more starfiles (you may check by using  `--info` ). Otherwise, the program uses the one table that was read in.
 Calling `--use` will clear all other previously made selections.
-
+***
 <a name="select">`--select _rlnLabel operator value`</a>
 
 Selects a subset of the current table based on an operator comparison. Allowed are '=, !=, \<, \>, \<=,
