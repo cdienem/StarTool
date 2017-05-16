@@ -177,27 +177,27 @@ Example 2: `--split_by _rlnMicrographName` will split the STAR file into separat
 Writes the current selection to a STAR-file. This is useful if one wants to extract a subset of data.
 
 If the a whole STAR-file shall be written with changes applied, see `--write`.
-***
-<a name="writef_selection">`--writef_selection outputstarfile.star`</a>
+
+<a name="writef_selection"><pre><b>--writef_selection outputstarfile.star</b></pre></a>
 
 Same as `--write_selection`, however overrides files without asking.
-***
-<a name="write">`--write outputstarfile.star`</a>
+
+<a name="write"><pre><b>--write outputstarfile.star</b></pre></a>
 
 Writes all tables belonging to the STAR-file which the current table is part of. Changes made to the
 individual tables by editor methods will be written (selection will be released before writing). If only
 specific tables or subsets should be written, you may use `--use` and write it as a selection with `--write_selection`.
-***
-<a name="writef">`--writef outputstarfile.star`</a>
+
+<a name="writef"><pre><b>--writef outputstarfile.star</b></pre></a>
 
 Same as `--write`, however overrides files without asking.
 
 ### Special
 
-<a name="silent">`--silent`</a>
+<a name="silent"><pre><b>--silent</b></pre></a>
 This mutes the program (useful for automated procedures). Be aware that muting the program will force files to be overwritten (`--writef` will be called instead of `--write`).
-***
-<a name="query">`--query SQLite-query`</a>
+
+<a name="query"><pre><b>--query SQLite-query</b></pre></a>
 
 This option is for experienced users that want to send their own SQLite queries. It will ignore any previously called selector methods. A SELECT statement will trigger a print of the called data.
 
