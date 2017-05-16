@@ -7,7 +7,7 @@ The StarTool executes commands for selecting and editing data in a Relion STAR f
 
 Behind the scenes, the STAR file is loaded into an in-memory SQLite3 database. Selections and edits are executed in that database and only when writing back into a file, the data will be retrieved from the database. Therefore, the StarTool could be easily extended as an interface for solutions where STAR files are stored in an SQLite database.
 
-## Features
+## Available commands
 feature list here
 
 ## Setup
@@ -51,31 +51,31 @@ Prints the current starfiles/tables loaded and their labels and record numbers. 
 used at the beginning to get an overview what data you actually have loaded.
 
 ### Data display
-`--show`
+<a name="show">`--show`</a>
 
 Prints the current content of the table in use. Selectors are applied.
 
 ### Selecting subsets of your data
-`--use tablename`
+<a name="use">`--use tablename`</a>
 
 Defines, which table is used for subsequent operations. This must be used, if multiple data tables are read from one or more starfiles (you may check by using  `--info` ). Otherwise, the program uses the one table that was read in.
 Calling `--use` will clear all other previously made selections.
 
-`--select _rlnLabel operator value`
+<a name="select">`--select _rlnLabel operator value`</a>
 
 Selects a subset of the current table based on an operator comparison. Allowed are '=, !=, \<, \>, \<=,
 \>= '.
 
 Example: `--select _rlnWhatEver\>=1.3092`
 
-`--select_regex _rlnLabel=”regex”`
+<a name="select_regex">`--select_regex _rlnLabel=”regex”`</a>
 
 Selects a subset of the current table based on a regular expression match. Allowed are regular ex-
 pressions.
 
 Example: `--select _rlnWhatEver=”.*\.star$”`
 
-`--select_star starfile.star:rlnA[variationA],_rlnB[variationB]`
+<a name="select_star">`--select_star starfile.star:rlnA[variationA],_rlnB[variationB]`</a>
 
 Selects a subset of the current table based on entries in starfile.star. starfile.star should only have one data table.
 
@@ -83,15 +83,15 @@ Example: `--select_star reference.star:_rlnImageName,_rlnCoordinateX[10],_rlnCoo
 
 Example: `--select _rlnMicrographName=* --select_fancy _rlnX,_rlnY=reference.star[10,10]`
 
-`--release`
+<a name="release">`--release`</a>
 
 Releases the current table by unsetting the `--use` and `--select*` statements (changes made by editors will remain).
 
-`--deselect`
+<a name="deselect">`--deselect`</a>
 
 Unsets all selections except for `--use`.
 
-`--subset 1:200`
+<a name="subset">`--subset 1:200`</a>
 
 Selects a subset of records including the records given as numbers.
 
@@ -101,57 +101,57 @@ Will select data entries 3-244 (including 3 and 244).
 
 ### Global Editors (ignore --select*, --sort, --tros, --subset statements)
 
-`--add_col [ _rlnNewLabel ]`
+<a name="add_col">`--add_col [ _rlnNewLabel ]`</a>
 
 Adds a new column named label to the current data table in use.
 
-`--rename_col _rlnLabelOld=_rlnLabelNew`
+<a name="rename_col">`--rename_col _rlnLabelOld=_rlnLabelNew`</a>
 
 Renames _rlnLabelOld to _rlnLabelNew in the current table in use.
 
-`--delete_col [ _rlnUnwantedLabel ]`
+<a name="delete_col">`--delete_col [ _rlnUnwantedLabel ]`</a>
 
 Removes _rlnUnwantedLabel (including data!) from the current data table in use.
 
-`--delete_table [ tablename ]`
+<a name="delete_table">`--delete_table [ tablename ]`</a>
 
 Removes the whole table from the starfile (including data!). If the current table is removed, all selec-
 tors are reset.
 
-`--rename_table tablenameNew`
+<a name="rename_table">`--rename_table tablenameNew`</a>
 
 Renames the current table in use to tablenameNew. Be aware that renaming tables may screw up compatibility with Relion.
 
 ### Local Editors (work on current selection)
 
-`--sort _rlnlabel`
+<a name="sort">`--sort _rlnlabel`</a>
 
 Sorts the selected data by the given label (ascending).
 
-`--tros _rlnlabel`
+<a name="tros">`--tros _rlnlabel`</a>
 
 Sorts the selected data by the given label (descending).
 
-`--delete`
+<a name="delete">`--delete`</a>
 
 Deletes the current selection from the data table in use.
 
-`--replace _rlnWhatEver=3.1415`
+<a name="replace">`--replace _rlnWhatEver=3.1415`</a>
 
 Replaces all values of the specified column with the given value. The column needs to exist in the current data table.
 This can also be used to fill empty columns with zeros (because Relion can not handle empty columns).
 
-`--replace_regex _rlnWhatEver='search'%'replace'`
+<a name="replace_regex">`--replace_regex _rlnWhatEver='search'%'replace'`</a>
 
 Replaces all values of the specified column matching the 'search' pattern with 'replace'. Regular expressions are allowed for search and replace (as in `sed` for example).
 
 Example: `--replace_regex _rlnLabel='\.star$'%'\.sun'`
 
-`--replace_star _rlnWhatEver=reference.star:_rlnReferenceA[variationA],_rlnReferenceB`
+<a name="replace_star">`--replace_star _rlnWhatEver=reference.star:_rlnReferenceA[variationA],_rlnReferenceB`</a>
 
 need update
 
-`--math _rlnLabel=a operator b`
+<a name="math">`--math _rlnLabel=a operator b`</a>
 
 Very basic math implementation. Operators can be `+`, `-`, `*`, `/` and `**` (power). `a` and `b` as used above can be either column names or numbers.
 
@@ -159,41 +159,40 @@ Example: `--math _rlnCoordinateX=_rlnCoordinateX-_rlnOriginX`
 
 ### Merging operations
 
-`--merge outputfile.star`
+<a name="merge">`--merge outputfile.star`</a>
 
 Merges all currently loaded starfiles into outputfile.star. Only merges STAR files that contain one data table. Columns that do not overlap between all merged STAR files will be dropped (including data!). For more details see <a href="#usage">Usage examples</a>.
 
 ### Output
 
-`--write_selection outputfilename.star`
+<a name="write_selection">`--write_selection outputfilename.star`</a>
 
 Writes the current selection to a STAR-file. This is useful if one wants to extract a subset of data.
 
 If the a whole STAR-file shall be written with changes applied, see `--write`.
 
-`--writef_selection outputstarfile.star`
+<a name="writef_selection">`--writef_selection outputstarfile.star`</a>
 
 Same as `--write_selection`, however overrides files without asking.
 
-`--write outputstarfile.star`
+<a name="write">`--write outputstarfile.star`</a>
 
 Writes all tables belonging to the STAR-file which the current table is part of. Changes made to the
 individual tables by editor methods will be written (selection will be released before writing). If only
 specific tables or subsets should be written, you may use `--use` and write it as a selection with `--write_selection`.
 
-`--writef outputstarfile.star`
+<a name="writef">`--writef outputstarfile.star`</a>
 
 Same as `--write`, however overrides files without asking.
 
 ### Special
 
-`--silent`
+<a name="silent">`--silent`</a>
 This mutes the program (useful for automated procedures). Be aware that muting the program will force files to be overwritten (`--writef` will be called instead of `--write`).
 
-`--query SQLite-query`
+<a name="query">`--query SQLite-query`</a>
 
 This option is for experienced users that want to send their own SQLite queries. It will ignore any previously called selector methods. A SELECT statement will trigger a print of the called data.
 
 ## Usage Examples
-<a name="usage"></a>
 Coming soon.
