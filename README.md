@@ -69,90 +69,88 @@ Selects a subset of the current table based on an operator comparison. Allowed a
 
 Example: `--select _rlnWhatEver\>=1.3092`
 
-<a name="select_regex">`--select_regex _rlnLabel=”regex”`</a>
+<a name="select_regex"><pre><b>--select_regex _rlnLabel=”regex”</b></pre></a>
 
 Selects a subset of the current table based on a regular expression match. Allowed are regular ex-
 pressions.
 
 Example: `--select _rlnWhatEver=”.*\.star$”`
-***
-<a name="select_star">`--select_star starfile.star:rlnA[variationA],_rlnB[variationB]`</a>
+
+<a name="select_star"><pre><b>--select_star starfile.star:rlnA[variationA],_rlnB[variationB]</b></pre></a>
 
 Selects a subset of the current table based on entries in starfile.star. starfile.star should only have one data table.
 
 Example: `--select_star reference.star:_rlnImageName,_rlnCoordinateX[10],_rlnCoordinateY[10]`
 
 Example: `--select _rlnMicrographName=* --select_fancy _rlnX,_rlnY=reference.star[10,10]`
-***
-<a name="release">`--release`</a>
+
+<a name="release"><pre><b>--release</b></pre></a>
 
 Releases the current table by unsetting the `--use` and `--select*` statements (changes made by editors will remain).
-***
-<a name="deselect">`--deselect`</a>
+
+<a name="deselect"><pre><b>--deselect</b></pre></a>
 
 Unsets all selections except for `--use`.
-***
-<a name="subset">`--subset 1:200`</a>
+
+<a name="subset"><pre><b>--subset start:end</b></pre></a>
 
 Selects a subset of records including the records given as numbers.
 
-Example: `--subset 3:244`
-
-Will select data entries 3-244 (including 3 and 244).
+Example: `--subset 3:244` will select data entries 3-244 (including 3 and 244).
 
 ### Global Editors (ignore --select*, --sort, --tros, --subset statements)
 
-<a name="add_col">`--add_col [ _rlnNewLabel ]`</a>
+<a name="add_col"><pre><b>--add_col _rlnNewLabel</b></pre></a>
 
 Adds a new column named label to the current data table in use.
-***
-<a name="rename_col">`--rename_col _rlnLabelOld=_rlnLabelNew`</a>
+
+<a name="rename_col"><pre><b>--rename_col _rlnLabelOld=_rlnLabelNew</b></pre></a>
 
 Renames _rlnLabelOld to _rlnLabelNew in the current table in use.
-***
-<a name="delete_col">`--delete_col [ _rlnUnwantedLabel ]`</a>
+
+<a name="delete_col"><pre><b>--delete_col _rlnUnwantedLabel</b></pre></a>
 
 Removes _rlnUnwantedLabel (including data!) from the current data table in use.
-***
-<a name="delete_table">`--delete_table [ tablename ]`</a>
+
+<a name="delete_table"><pre><b>--delete_table tablename</b></pre></a>
 
 Removes the whole table from the starfile (including data!). If the current table is removed, all selec-
 tors are reset.
-***
-<a name="rename_table">`--rename_table tablenameNew`</a>
+
+<a name="rename_table"><pre><b>--rename_table tablenameNew</b></pre></a>
 
 Renames the current table in use to tablenameNew. Be aware that renaming tables may screw up compatibility with Relion.
 
 ### Local Editors (work on current selection)
 
-<a name="sort">`--sort _rlnlabel`</a>
+<a name="sort"><pre><b>--sort _rlnlabel</b></pre></a>
 
 Sorts the selected data by the given label (ascending).
-***
-<a name="tros">`--tros _rlnlabel`</a>
+
+<a name="tros"><pre><b>--tros _rlnlabel</b></pre></a>
 
 Sorts the selected data by the given label (descending).
-***
-<a name="delete">`--delete`</a>
+
+<a name="delete"><pre><b>--delete</b></pre></a>
 
 Deletes the current selection from the data table in use.
-***
-<a name="replace">`--replace _rlnWhatEver=3.1415`</a>
+
+<a name="replace"><pre><b>--replace _rlnWhatEver=3.1415</b></pre></a>
 
 Replaces all values of the specified column with the given value. The column needs to exist in the current data table.
 This can also be used to fill empty columns with zeros (because Relion can not handle empty columns).
-***
-<a name="replace_regex">`--replace_regex _rlnWhatEver='search'%'replace'`</a>
+
+<a name="replace_regex"><pre><b>--replace_regex _rlnWhatEver='search'%'replace'</b></pre></a>
 
 Replaces all values of the specified column matching the 'search' pattern with 'replace'. Regular expressions are allowed for search and replace (as in `sed` for example).
 
 Example: `--replace_regex _rlnLabel='\.star$'%'\.sun'`
-***
-<a name="replace_star">`--replace_star _rlnWhatEver=reference.star:_rlnReferenceA[variationA],_rlnReferenceB`</a>
+
+<a name="replace_star"><pre><b>--replace_star _rlnWhatEver=reference.star:_rlnReferenceA[variationA],_rlnReferenceB</b></pre></a>
 
 need update
-***
-<a name="math">`--math _rlnLabel=a operator b`</a>
+
+<a name="math"><pre><b>--math _rlnLabel=a operator b</b></pre></a>
 
 Very basic math implementation. Operators can be `+`, `-`, `*`, `/`, `**` (power; `k**n` is k to the n-th power) and `//` (root; `n//k` is the n-th root of k). `a` and `b` as used above can be either column names or numbers.
 
