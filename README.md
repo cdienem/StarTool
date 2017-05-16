@@ -51,24 +51,24 @@ Prints the current starfiles/tables loaded and their labels and record numbers. 
 used at the beginning to get an overview what data you actually have loaded.
 
 ### Data display
-<a name="show">`--show`</a>
+<a name="show"><pre><b>--show</b></pre></a>
 
 Prints the current content of the table in use. Selectors are applied.
 
 ### Selecting subsets of your data
 
-<a name="use">`--use tablename`</a>
+<a name="use"><pre><b>--use tablename</b></pre></a>
 
 Defines, which table is used for subsequent operations. This must be used, if multiple data tables are read from one or more starfiles (you may check by using  `--info` ). Otherwise, the program uses the one table that was read in.
 Calling `--use` will clear all other previously made selections.
-***
-<a name="select">`--select _rlnLabel operator value`</a>
+
+<a name="select"><pre><b>--select _rlnLabel operator value</b></pre></a>
 
 Selects a subset of the current table based on an operator comparison. Allowed are '=, !=, \<, \>, \<=,
 \>= '.
 
 Example: `--select _rlnWhatEver\>=1.3092`
-***
+
 <a name="select_regex">`--select_regex _rlnLabel=”regex”`</a>
 
 Selects a subset of the current table based on a regular expression match. Allowed are regular ex-
