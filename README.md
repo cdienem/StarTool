@@ -1,6 +1,22 @@
 # StarTool
 
 ## Table of contents
+<a href="#concept">Concept</a>
+<a href="#available-commands">Available commands</a>
+Setup
+  Unix based systems
+  Windows
+Syntax
+  General usage and input
+  Information
+  Data display
+  Selecting subset of your data
+  Global editors
+  Local editors
+  Split and merge operations
+  Output
+  Special
+Usage examples
 
 ## Concept
 The StarTool executes commands for selecting and editing data in a Relion STAR file. The given order of commands defines the order of execution meaning that editing commands work on previously made selections (except when changing global properties as tablenames, column names etc.). Such edited STAR files can be written out as a new starfile and subsets (selections) can be exported as well.
@@ -26,7 +42,7 @@ In case you want to have the tool available system wide, use a shell alias like 
 Coming soon...
 
 ## Syntax
-### General usage/Input
+### General usage and input
 `python startool.py [inputfiles] [selectors/editors] [output]`
 
 Example: `python startool.py a_file.star --select _rlnVoltage=300 --write_selection selection.star`
