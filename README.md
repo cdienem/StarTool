@@ -60,21 +60,21 @@ Prints the current content of the table in use. Selectors are applied.
 
 Defines, which table is used for subsequent operations. This must be used, if multiple data tables are read from one or more starfiles (you may check by using  `--info` ). Otherwise, the program uses the one table that was read in.
 Calling `--use` will clear all other previously made selections.
----
+
 <a name="select">`--select _rlnLabel operator value`</a>
 
 Selects a subset of the current table based on an operator comparison. Allowed are '=, !=, \<, \>, \<=,
 \>= '.
 
 Example: `--select _rlnWhatEver\>=1.3092`
----
+
 <a name="select_regex">`--select_regex _rlnLabel=”regex”`</a>
 
 Selects a subset of the current table based on a regular expression match. Allowed are regular ex-
 pressions.
 
 Example: `--select _rlnWhatEver=”.*\.star$”`
----
+
 <a name="select_star">`--select_star starfile.star:rlnA[variationA],_rlnB[variationB]`</a>
 
 Selects a subset of the current table based on entries in starfile.star. starfile.star should only have one data table.
@@ -82,15 +82,15 @@ Selects a subset of the current table based on entries in starfile.star. starfil
 Example: `--select_star reference.star:_rlnImageName,_rlnCoordinateX[10],_rlnCoordinateY[10]`
 
 Example: `--select _rlnMicrographName=* --select_fancy _rlnX,_rlnY=reference.star[10,10]`
----
+
 <a name="release">`--release`</a>
 
 Releases the current table by unsetting the `--use` and `--select*` statements (changes made by editors will remain).
----
+
 <a name="deselect">`--deselect`</a>
 
 Unsets all selections except for `--use`.
----
+
 <a name="subset">`--subset 1:200`</a>
 
 Selects a subset of records including the records given as numbers.
@@ -104,11 +104,11 @@ Will select data entries 3-244 (including 3 and 244).
 <a name="add_col">`--add_col [ _rlnNewLabel ]`</a>
 
 Adds a new column named label to the current data table in use.
----
+
 <a name="rename_col">`--rename_col _rlnLabelOld=_rlnLabelNew`</a>
 
 Renames _rlnLabelOld to _rlnLabelNew in the current table in use.
----
+
 <a name="delete_col">`--delete_col [ _rlnUnwantedLabel ]`</a>
 
 Removes _rlnUnwantedLabel (including data!) from the current data table in use.
