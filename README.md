@@ -56,7 +56,7 @@ used at the beginning to get an overview what data you actually have loaded.
 Prints the current content of the table in use. Selectors are applied.
 
 ### Selecting subsets of your data
-***
+
 <a name="use">`--use tablename`</a>
 
 Defines, which table is used for subsequent operations. This must be used, if multiple data tables are read from one or more starfiles (you may check by using  `--info` ). Otherwise, the program uses the one table that was read in.
