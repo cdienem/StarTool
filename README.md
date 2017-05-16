@@ -158,11 +158,11 @@ Example: `--math _rlnCoordinateX=_rlnCoordinateX-_rlnOriginX`
 
 ### Split and merge operations
 
-<a name="merge">`--merge outputfile.star`</a>
+<a name="merge"><pre><b>--merge outputfile.star</b></pre></a>
 
 Merges all currently loaded starfiles into outputfile.star. Only merges STAR files that contain one data table. Columns that do not overlap between all merged STAR files will be dropped (including data!). For more details see <a href="#usage">Usage examples</a>.
-***
-<a name="split_by">`--split_by _rlnLabel:noOfBatches`</a>
+
+<a name="split_by"><pre><b>--split_by _rlnLabel:noOfBatches</b></pre></a>
 
 This splits the dataset into a specific number of batches. If no number of bathches is given, the data will be split into subbatches for each unique value of the given label. 
 
@@ -172,7 +172,7 @@ Example 2: `--split_by _rlnMicrographName` will split the STAR file into separat
 
 ### Output
 
-<a name="write_selection">`--write_selection outputfilename.star`</a>
+<a name="write_selection"><pre><b>--write_selection outputfilename.star</b></pre></a>
 
 Writes the current selection to a STAR-file. This is useful if one wants to extract a subset of data.
 
