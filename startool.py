@@ -377,8 +377,6 @@ if hasattr(args, "ordered_args"):
 									except ValueError:
 										stardb.out("The variation value must be a number.")
 										options[i] = None
-							print file
-							print options
 							stardb.replace_star(label, file, options)
 						else:
 							stardb.out("The reference file "+str(file)+" does not exist.")
@@ -394,28 +392,33 @@ if hasattr(args, "ordered_args"):
 				elif cmd[0] == "write_selection":
 					# outputstar.star
 					# Needs a table selected
-					if os.path.isfile(cmd[1]):
-						stardb.out( "The file '"+str(cmd[1])+"' already exists.")
-						ans = raw_input("Do you want to override (y/n)?")
-						if ans == "y":
-							stardb.out( "Overriding the file.")
+					if stardb.isSilent():
+						stardb.writeSeleection(cmd[1])
+					else:
+						if os.path.isfile(cmd[1]):
+							stardb.out( "The file '"+str(cmd[1])+"' already exists.")
+							ans = raw_input("Do you want to override (y/n)?")
+							if ans == "y":
+								stardb.out( "Overriding the file.")
+								stardb.writeSelection(cmd[1])
+							else:
+								stardb.out( "Not overriding.")
+						else:
 							stardb.writeSelection(cmd[1])
-						else:
-							stardb.out( "Not overriding.")
-					else:
-						stardb.writeSelection(cmd[1])
 				elif cmd[0] == "write":#
-					if os.path.isfile(cmd[1]):
-						stardb.out( "The file '"+str(cmd[1])+"' already exists.")
-						ans = raw_input("Do you want to override (y/n)?")
-						if ans == "y":
-							stardb.out( "Overriding the file.")
-							stardb.writeStar(cmd[1])
-						else:
-							stardb.out( "Not overriding.")
-					else:
+					if stardb.isSilent():
 						stardb.writeStar(cmd[1])
-				
+					else:
+						if os.path.isfile(cmd[1]):
+							stardb.out( "The file '"+str(cmd[1])+"' already exists.")
+							ans = raw_input("Do you want to override (y/n)?")
+							if ans == "y":
+								stardb.out( "Overriding the file.")
+								stardb.writeStar(cmd[1])
+							else:
+								stardb.out( "Not overriding.")
+						else:
+							stardb.writeStar(cmd[1])				
 				elif cmd[0] == "writef":#
 					stardb.writeStar(cmd[1])
 
@@ -441,7 +444,9 @@ if hasattr(args, "ordered_args"):
 #     > pow missing
 #
 # - update readme with HTML
-#
+# - ! in silent mode use writef instead of write
 
 # Notes:
 # > replace_regex: the stupid case of someone replacing a string into a float field?
+# > replace_star might be slow for large data sets
+

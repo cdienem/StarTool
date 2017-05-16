@@ -497,7 +497,7 @@ class StarTool:
 		# multiply: *
 		# devide: /
 		# power: ** 
-		# root: //
+		# root: will be done as fractional pow
 		# math is done on the current selection	
 		if operator == "+":
 			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" + \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
@@ -508,8 +508,6 @@ class StarTool:
 		elif operator == "*":
 			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" * \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		elif operator == "**":
-			pass
-		elif operator == "//":
 			pass
 		pass
 
@@ -639,3 +637,9 @@ class StarTool:
 	def out(self, content):
 		if self.SILENT == 0:
 			print content
+
+	def isSilent(self):
+		if self.SILENT == 1:
+			return True
+		else:
+			return False
