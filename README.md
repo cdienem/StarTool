@@ -5,10 +5,10 @@
 ## Concept
 The StarTool executes commands for selecting and editing data in a Relion STAR file. The given order of commands defines the order of execution meaning that editing commands work on previously made selections (except when changing global properties as tablenames, column names etc.). Such edited STAR files can be written out as a new starfile and subsets (selections) can be exported as well.
 
-Behind the scenes, the STAR file is loaded into an in-memory SQLite3 database. Selections and edits are executed in that database and only when writing back into a file, the data will be retrieved from the database. Therefore, the StarTool could be easily extended as an interface for solutions where STAR files are stored in an SQLlite database.
+Behind the scenes, the STAR file is loaded into an in-memory SQLite3 database. Selections and edits are executed in that database and only when writing back into a file, the data will be retrieved from the database. Therefore, the StarTool could be easily extended as an interface for solutions where STAR files are stored in an SQLite database.
 
 ## Features
-
+feature list here
 
 ## Setup
 
@@ -45,7 +45,7 @@ to load the STAR file into a local data base file. Changes made by editors will 
 Remember to remove that database file if you want to start over with the original data from your .STAR file.
 
 ### Information
-`--info`
+<a name="info">`--info`</a>
 
 Prints the current starfiles/tables loaded and their labels and record numbers. This should always be
 used at the beginning to get an overview what data you actually have loaded.
@@ -161,7 +161,7 @@ Example: `--math _rlnCoordinateX=_rlnCoordinateX-_rlnOriginX`
 
 `--merge outputfile.star`
 
-Merges all currently loaded starfiles into outputfile.star. Only merges STAR files that contain one data table. Columns that do not overlap between all merged STAR files will be dropped (including data!). For more details see [Usage examples]:(#usage).
+Merges all currently loaded starfiles into outputfile.star. Only merges STAR files that contain one data table. Columns that do not overlap between all merged STAR files will be dropped (including data!). For more details see <a href="#usage">Usage examples</a>.
 
 ### Output
 
