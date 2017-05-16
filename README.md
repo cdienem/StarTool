@@ -25,10 +25,6 @@ In case you want to have the tool available system wide, use a shell alias like 
 
 Coming soon...
 
-## Known Issues
-
-If you encounter any issues, feel free to contact me.
-
 ## Syntax
 ### General usage/Input
 `python startool.py [inputfiles] [selectors/editors] [output]`
