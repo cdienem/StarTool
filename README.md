@@ -1,6 +1,3 @@
-<style>
-code { color:#0f0; }
-</style>
 # StarTool
 
 ## Table of contents
