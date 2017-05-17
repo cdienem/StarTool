@@ -26,6 +26,12 @@ Behind the scenes, the STAR file is loaded into an in-memory SQLite3 database. S
 ## Available commands
 TODO: feature list here as a table with short description
 
+|   |   |   |   |   |
+|---|---|---|---|---|
+|   |   |   |   |   |
+|   |   |   |   |   |
+|   |   |   |   |   |
+
 ## Setup
 
 StarTool requires Python 2.7.
@@ -100,14 +106,14 @@ Selects a subset of the current table based on an operator comparison. Allowed a
  </tr>
 </table> 
 
-Example: `--select _rlnWhatEver\>=1.3092`
+Example: `--select _rlnDefocusU\>=10000` will select all entries with defocus greater or equal to 1 um.
 
 <a name="select_regex"><pre><b>--select_regex _rlnLabel=”regex”</b></pre></a>
 
 Selects a subset of the current table based on a regular expression match. Allowed are regular ex-
 pressions.
 
-Example: `--select _rlnWhatEver=”.*\.star$”`
+Example: `--select _rlnMicrographName=”.*\.mrcs$”` will select all entries where _rlnMicrographName end with '.mrcs'.
 
 <a name="select_star"><pre><b>--select_star reference.star:rlnA[variationA],_rlnB[variationB]</b></pre></a>
 
@@ -133,11 +139,12 @@ By default, the program uses the table that was read in if there is only one. `-
 
 Releases the current table by unsetting the `--use` and `--select*` statements (changes made by editors will remain).
 
-### Global Editors (ignore --select*, --sort, --tros, --subset statements)
+### Global Editors
+Global editors ignore selections made before since they only change global properties of data tables like tablename or column labels.
 
 <a name="add_col"><pre><b>--add_col _rlnNewLabel</b></pre></a>
 
-Adds a new column named label to the current data table in use.
+Adds a new column to the current data table in use.
 
 <a name="rename_col"><pre><b>--rename_col _rlnLabelOld=_rlnLabelNew</b></pre></a>
 
@@ -156,8 +163,8 @@ tors are reset.
 
 Renames the current table in use to tablenameNew. Be aware that renaming tables may screw up compatibility with Relion.
 
-### Local Editors (work on current selection)
-
+### Local Editors
+Loval editors directly affect the data that is currently selected (see <a href="#selecting-subsets-of-data">Selecting subsets of data</a>)
 <a name="sort"><pre><b>--sort _rlnlabel</b></pre></a>
 
 Sorts the selected data by the given label (ascending).
@@ -179,15 +186,45 @@ This can also be used to fill empty columns with zeros (because Relion can not h
 
 Replaces all values of the specified column matching the 'search' pattern with 'replace'. Regular expressions are allowed for search and replace (as in `sed` for example).
 
-Example: `--replace_regex _rlnLabel='\.star$'%'\.sun'`
+Example: `--replace_regex _rlnLabel='\.star$'%'\.sun'` will change all _rlnLabel that end on '.star' to an ending of '.sun'.
 
-<a name="replace_star"><pre><b>--replace_star _rlnWhatEver=reference.star:_rlnReferenceA[variationA],_rlnReferenceB</b></pre></a>
+<a name="replace_star"><pre><b>--replace_star _rlnLabel=reference.star:_rlnReferenceA[variationA],_rlnReferenceB</b></pre></a>
 
-need update
+Replaces a subset of date with values from reference.star based on matching conditions with reference.star. reference.star should only have one data table. The variation value '`[x]`' is optional and will only be interpreted for numerical columns (like coordinates, defocus etc.). Reference STAR files will be loaded temporarily and do not have to be loaded at the program start up. 
 
-<a name="math"><pre><b>--math _rlnLabel=a operator b</b></pre></a>
+Example: `--replace_star _rlnImagename=reference.star:_rlnMicrographName,_rlnCoordinateX[10],_rlnCoordinateY[10]` will replace _rlnImageName of the current data by the values from reference.star where _rlnMicrographName match and where _rlnCoordinateX/Y also match within 10 px variation.
 
-Very basic math implementation. Operators can be `+`, `-`, `*`, `/`, `**` (power; `k**n` is k to the n-th power) and `//` (root; `n//k` is the n-th root of k). `a` and `b` as used above can be either column names or numbers.
+<a name="math"><pre><b>--math _rlnLabel=k operator n</b></pre></a>
+
+Very basic math implementation. Operations can be like 
+<table>
+ <tr>
+  <td>k+n</td>
+  <td>addition</td>
+ </tr>
+ <tr>
+  <td>k-n</td>
+  <td>subtraction</td>
+ </tr>
+ <tr>
+  <td>k*n</td>
+  <td>mutliplication</td>
+ </tr>
+ <tr>
+  <td>k/n</td>
+  <td>division</td>
+ </tr>
+ <tr>
+  <td>k**n</td>
+  <td>n-th power of k</td>
+ </tr>
+ <tr>
+  <td>n//k</td>
+  <td>n-th root of k</td>
+ </tr>
+</table>
+
+`n` and `k` as used above can be either column names or numbers.
 
 Example: `--math _rlnCoordinateX=_rlnCoordinateX-_rlnOriginX` 
 
@@ -199,19 +236,17 @@ Merges all currently loaded starfiles into outputfile.star. Only merges STAR fil
 
 <a name="split_by"><pre><b>--split_by _rlnLabel:noOfBatches</b></pre></a>
 
-This splits the dataset into a specific number of batches. If no number of bathches is given, the data will be split into subbatches for each unique value of the given label. 
+Splits the dataset into a specific number of batches. If no number of bathches is given, the data will be split into subbatches for each unique value of the given label. 
 
 Example 1: `--split_by _rlnDefocusU:2` will split the STAR file into two subfiles that contain one half of the defocus range each.
 
-Example 2: `--split_by _rlnMicrographName` will split the STAR file into separate files for each micrograph (e.g particles). Note that this can create a large number of files!2
+Example 2: `--split_by _rlnMicrographName` will split the STAR file into separate files for each micrograph. Note that this can create a large number of files if used with columns as defocus or coordinates!
 
 ### Output
 
 <a name="write_selection"><pre><b>--write_selection outputfilename.star</b></pre></a>
 
-Writes the current selection to a STAR-file. This is useful if one wants to extract a subset of data.
-
-If the a whole STAR-file shall be written with changes applied, see `--write`.
+Writes the current selection to a STAR file. This is useful if one wants to extract a subset of data. In silent mode (<a href="#silent">´--silent´</a>), this will be forced into `--writef_selection`.
 
 <a name="writef_selection"><pre><b>--writef_selection outputstarfile.star</b></pre></a>
 
@@ -219,7 +254,7 @@ Same as `--write_selection`, however overrides files without asking.
 
 <a name="write"><pre><b>--write outputstarfile.star</b></pre></a>
 
-Writes all tables belonging to the STAR-file which the current table is part of. Changes made to the
+Writes all tables belonging to the STAR file which the current table is part of. Changes made to the
 individual tables by editor methods will be written (selection will be released before writing). If only
 specific tables or subsets should be written, you may use `--use` and write it as a selection with `--write_selection`.
 
@@ -230,12 +265,22 @@ Same as `--write`, however overrides files without asking.
 ### Special
 
 <a name="silent"><pre><b>--silent</b></pre></a>
-This mutes the program (useful for automated procedures). Be aware that muting the program will force files to be overwritten (`--writef` will be called instead of `--write`).
+This mutes the program (useful for automated procedures). Be aware that muting the program will force files to be overwritten (`--writef` and `--writef_selection` will be called instead of `--write` and `--write_selection`).
 
 <a name="query"><pre><b>--query SQLite-query</b></pre></a>
 
 This option is for experienced users that want to send their own SQLite queries. It will ignore any previously called selector methods. A SELECT statement will trigger a print of the called data.
 
 ## Usage Examples
-Split by defocus
-Batches
+
+Examplel will be added soon.
+
+### Split data by defocus
+
+### Make batches of data
+
+### Replace defocus values by values from reference
+
+### Recenter particles for re-extraction
+
+
