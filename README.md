@@ -73,12 +73,14 @@ These methods can be used to select certain subsets of your data. This is useful
 <a name="select"><pre><b>--select _rlnLabel operator value</b></pre></a>
 
 Selects a subset of the current table based on an operator comparison. Allowed are 
-| = | equal |
-| != | not equal |
-| \< | smaller than (needs to be escaped) |
-| \> | greater than (needs to be escaped) |
-| \<= | smaller or equal than (needs to be escaped) |
-| \>= | greater or equal than (needs to be escaped) |
+Operator | Description 
+------------- | ----------- 
+= | equal 
+!= | not equal 
+\< | smaller than (needs to be escaped) 
+\> | greater than (needs to be escaped) 
+\<= | smaller or equal than (needs to be escaped) 
+\>= | greater or equal than (needs to be escaped) 
 
 Example: `--select _rlnWhatEver\>=1.3092`
 
