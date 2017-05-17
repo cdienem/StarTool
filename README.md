@@ -29,35 +29,35 @@ These commands (ordered alphabetically) are available.
 
 | Command | Description |
 |---|---|
-| `--add_col` |  |
-| `--delete` |  |
-| `--delete_col` |  |
-| `--delete_table` |  |
-| `--deselect` |  |
-| `--info` |  |
-| `--math` |  |
-| `--merge` |  |
-| `--query` |  |
-| `--release` |  |
-| `--rename_col` |  |
-| `--rename_table` |  |
-| `--replace` |  |
-| `--replace_regex` |  |
-| `--replace_star` |  |
-| `--select` |  |
-| `--select_regex` |  |
-| `--select_star` |  |
-| `--silent` |  |
-| `--show` |  |
-| `--sort` |  |
-| `--split_by` |  |
-| `--subset` |  |
-| `--tros` |  |
-| `--use` |  |
-| `--write` |  |
-| `--write_selection` |  |
-| `--writef` |  |
-| `--writef_selection` |  |
+| `--add_col` | Adds a new column |
+| `--delete` | Deletes selected data |
+| `--delete_col` | Deletes a column |
+| `--delete_table` | Deletes a data table |
+| `--deselect` | Unsets all seleections |
+| `--info` | Prints information about STAR file |
+| `--math` | basic math operations with values and columns |
+| `--merge` | Merge two or more files |
+| `--query` | Submit a user defined SQLite query |
+| `--release` | Unsets the current table in use (for multi table files) |
+| `--rename_col` | Renames a colum |
+| `--rename_table` | Renames a data table |
+| `--replace` | Replaces values by a user defined value |
+| `--replace_regex` | Regular expression base replacing |
+| `--replace_star` | Replace values with values from other STAR file |
+| `--select` | Select data by operator based conditions |
+| `--select_regex` | Select data based on regular expressions |
+| `--select_star` | Select data based on matches with reference STAR file |
+| `--silent` | Mutes program output |
+| `--show` | Prints currently selected data |
+| `--sort` | Sorts selected data (ascending) |
+| `--split_by` | Splits data into batches |
+| `--subset` | Selects defined data subsets |
+| `--tros` | Sorts selected data (descending) |
+| `--use` | Defines a table to use (only for multi table STAR files) |
+| `--write` | Writes STAR file |
+| `--write_selection` | Writes current selection to STAR file |
+| `--writef` | Writes STAR file (force override) |
+| `--writef_selection` | Writes current selection to STAR file (force override) |
 
 
 
