@@ -2,7 +2,7 @@
 
 ## Table of contents
 * <a href="#concept">Concept</a>
-* <a href="#available-commands">Available commands</a>
+* <a href="#quick-reference">Quick reference</a>
 * <a href="#setup">Setup</a>
   * <a href="#unix-based-systems-including-the-partially-eaten-fruit">Unix based systems</a>
   * <a href="#windows">Windows</a>
@@ -23,14 +23,43 @@ The StarTool executes commands for selecting and editing data in a Relion STAR f
 
 Behind the scenes, the STAR file is loaded into an in-memory SQLite3 database. Selections and edits are executed in that database and only when writing back into a file, the data will be retrieved from the database. Therefore, the StarTool could be easily extended as an interface for solutions where STAR files are stored in an SQLite database.
 
-## Available commands
-TODO: feature list here as a table with short description
+## Quick reference
 
-|   |   |   |   |   |
-|---|---|---|---|---|
-|   |   |   |   |   |
-|   |   |   |   |   |
-|   |   |   |   |   |
+These commands (ordered alphabetically) are available.
+
+| Command | Description |
+|---|---|
+| `--add_col` |  |
+| `--delete` |  |
+| `--delete_col` |  |
+| `--delete_table` |  |
+| `--deselect` |  |
+| `--info` |  |
+| `--math` |  |
+| `--merge` |  |
+| `--query` |  |
+| `--release` |  |
+| `--rename_col` |  |
+| `--rename_table` |  |
+| `--replace` |  |
+| `--replace_regex` |  |
+| `--replace_star` |  |
+| `--select` |  |
+| `--select_regex` |  |
+| `--select_star` |  |
+| `--silent` |  |
+| `--show` |  |
+| `--sort` |  |
+| `--split_by` |  |
+| `--subset` |  |
+| `--tros` |  |
+| `--use` |  |
+| `--write` |  |
+| `--write_selection` |  |
+| `--writef` |  |
+| `--writef_selection` |  |
+
+
 
 ## Setup
 
