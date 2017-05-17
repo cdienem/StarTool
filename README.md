@@ -24,7 +24,7 @@ The StarTool executes commands for selecting and editing data in a Relion STAR f
 Behind the scenes, the STAR file is loaded into an in-memory SQLite3 database. Selections and edits are executed in that database and only when writing back into a file, the data will be retrieved from the database. Therefore, the StarTool could be easily extended as an interface for solutions where STAR files are stored in an SQLite database.
 
 ## Available commands
-feature list here as a table with short description
+TODO: feature list here as a table with short description
 
 ## Setup
 
@@ -68,16 +68,17 @@ used at the beginning to get an overview what data you actually have loaded.
 Prints the current content of the table in use. Selectors are applied.
 
 ### Selecting subsets of data
-
-<a name="use"><pre><b>--use tablename</b></pre></a>
-
-Defines, which table is used for subsequent operations. This must be used, if multiple data tables are read from one or more starfiles (you may check by using  `--info` ). Otherwise, the program uses the one table that was read in.
-Calling `--use` will clear all other previously made selections.
+These methods can be used to select certain subsets of your data. This is useful if you want to edit or extract only a certain part of the data.
 
 <a name="select"><pre><b>--select _rlnLabel operator value</b></pre></a>
 
-Selects a subset of the current table based on an operator comparison. Allowed are '=, !=, \<, \>, \<=,
-\>= '.
+Selects a subset of the current table based on an operator comparison. Allowed are 
+| = | equal |
+| != | not equal |
+| \< | smaller than (needs to be escaped) |
+| \> | greater than (needs to be escaped) |
+| \<= | smaller or equal than (needs to be escaped) |
+| \>= | greater or equal than (needs to be escaped) |
 
 Example: `--select _rlnWhatEver\>=1.3092`
 
@@ -88,27 +89,29 @@ pressions.
 
 Example: `--select _rlnWhatEver=”.*\.star$”`
 
-<a name="select_star"><pre><b>--select_star starfile.star:rlnA[variationA],_rlnB[variationB]</b></pre></a>
+<a name="select_star"><pre><b>--select_star reference.star:rlnA[variationA],_rlnB[variationB]</b></pre></a>
 
-Selects a subset of the current table based on entries in starfile.star. starfile.star should only have one data table.
+Selects a subset of the current table based on entries in reference.star. reference.star should only have one data table. The variation value '`[x]`' is optional and will only be interpreted for numerical columns (like coordinates, defocus etc.). Reference STAR files will be loaded temporarily and do not have to be loaded at the program start up. 
 
-Example: `--select_star reference.star:_rlnImageName,_rlnCoordinateX[10],_rlnCoordinateY[10]`
+Example: `--select_star reference.star:_rlnImageName,_rlnCoordinateX[10],_rlnCoordinateY[10]` will select all entries that match by _rlnMicrographName with reference.star and where _rlnCoordinateX/Y also matches allowing 10 px variation.
 
-Example: `--select _rlnMicrographName=* --select_fancy _rlnX,_rlnY=reference.star[10,10]`
+<a name="subset"><pre><b>--subset start:end</b></pre></a>
+
+Selects a subset of records including the records given as numbers. For splitting Data into regular batches see also <a href="#split_by">`--split_by`</a>.
+
+Example: `--subset 3:244` will select data entries 3-244 (including 3 and 244).
+
+<a name="deselect"><pre><b>--deselect</b></pre></a>
+
+Unsets all selections.
+
+<a name="use"><pre><b>--use tablename</b></pre></a>
+
+By default, the program uses the table that was read in if there is only one. `--use` must be called, if multiple data tables are read from one or more starfiles (you may check by using `--info`). Calling `--use` will clear all other previously made selections.
 
 <a name="release"><pre><b>--release</b></pre></a>
 
 Releases the current table by unsetting the `--use` and `--select*` statements (changes made by editors will remain).
-
-<a name="deselect"><pre><b>--deselect</b></pre></a>
-
-Unsets all selections except for `--use`.
-
-<a name="subset"><pre><b>--subset start:end</b></pre></a>
-
-Selects a subset of records including the records given as numbers.
-
-Example: `--subset 3:244` will select data entries 3-244 (including 3 and 244).
 
 ### Global Editors (ignore --select*, --sort, --tros, --subset statements)
 
