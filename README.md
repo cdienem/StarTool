@@ -308,7 +308,7 @@ Examplel will be added soon.
 Scenario: After running a 3D classification with 4 classes, a 3D refinement of all classes shall be performed automatically. In order to do so, one needs to split the data STAR file of the last iteration (lets assume iteration 25 here) into STAR files for the individual classes.
 
 Solution: Write a shell script that looks like this
-<code>
+```bash
 #!/bin/bash
 
 # Run your Relion here:
@@ -318,13 +318,13 @@ python startool.py path/to/classification/3dclass_it025_data.star --select _rlnC
 
 # Run the refinements here using the new inputs:
 relion_refine ...
-</code>
+```
 
 The only disadvantage here is that particles might need to be regrouped prior to 3D refinement if the number of particles is rather low. Unfortunately I did not come across a way of regrouping particles with Relion on the command line. 
 
 ### Split data by defocus
 
-### Make batches of data
+### Create arbitrary sub-batches of data
 
 ### Replace defocus values by values from reference
 
