@@ -331,10 +331,12 @@ The only disadvantage here is that particles might need to be regrouped prior to
 python startool.py micrographs_ctf.star --select _rlnDefocusU\<=17000 --write_selection micrographs_ctf_df1.star --deselect --select _rlnDefocusU\>17000 --write_selection micrographs_ctf_df2.star
 ```
 
-### Create arbitrary sub-batches of data
-
 ### Replace defocus values by values from reference
 
+*Scenario:* You have redone CTF estimation using a program that performs better thatn your initial method and you want to replace the defocus values in your particle STAR file with the new ones.
+
 ### Recenter particles for re-extraction
+
+### Split data files into batches per micrographs for re-extraction
 
 
