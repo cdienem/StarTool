@@ -302,12 +302,12 @@ This option is for experienced users that want to send their own SQLite queries.
 
 ## Usage Examples
 
-Examplel will be added soon.
+Most tasks can be achieved by usage of very simple command. However, to demonstrate the flexibility of the StarTool, they are covered as well in the usage examples.
 
 ### Split particles by class after classification
-Scenario: After running a 3D classification with 4 classes, a 3D refinement of all classes shall be performed automatically. In order to do so, one needs to split the data STAR file of the last iteration (lets assume iteration 25 here) into STAR files for the individual classes.
+*Scenario:* After running a 3D classification with 4 classes, a 3D refinement of all classes shall be performed automatically. In order to do so, one needs to split the data STAR file of the last iteration (lets assume iteration 25 here) into STAR files for the individual classes.
 
-Solution: Write a shell script that looks like this
+*Solution:* Write a shell script that looks like this
 ```bash
 #!/bin/bash
 
@@ -323,6 +323,13 @@ relion_refine ...
 The only disadvantage here is that particles might need to be regrouped prior to 3D refinement if the number of particles is rather low. Unfortunately I did not come across a way of regrouping particles with Relion on the command line. 
 
 ### Split data by defocus
+
+*Scenario:* For automated particle picking it might be required to use different defocus ranges in order to optimize the picking thresholds. For this example I want to split my data at a defocus of 1.7 um.
+
+*Solution:*
+```bash
+python startool.py micrographs_ctf.star --select _rlnDefocusU\<=17000 --write_selection micrographs_ctf_df1.star --deselect --select _rlnDefocusU\>17000 --write_selection micrographs_ctf_df2.star
+```
 
 ### Create arbitrary sub-batches of data
 
