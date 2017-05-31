@@ -33,7 +33,7 @@ These commands (ordered alphabetically) are available.
 | <a href="#delete">`--delete`</a> | Deletes selected data |
 | <a href="#delete_col">`--delete_col`</a> | Deletes a column |
 | <a href="#delete_table">`--delete_table`</a> | Deletes a data table |
-| <a href="#deselct">`--deselect`</a> | Unsets all seleections |
+| <a href="#deselect">`--deselect`</a> | Unsets all seleections |
 | <a href="#info">`--info`</a> | Prints information about STAR file |
 | <a href="#math">`--math`</a> | Basic math operations with values and columns |
 | <a href="#merge">`--merge`</a> | Merge two or more files |
