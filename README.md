@@ -304,6 +304,24 @@ This option is for experienced users that want to send their own SQLite queries.
 
 Examplel will be added soon.
 
+### Split particles by class after classification
+Scenario: After running a 3D classification with 4 classes, a 3D refinement of all classes shall be performed automatically. In order to do so, one needs to split the data STAR file of the last iteration (lets assume iteration 25 here) into STAR files for the individual classes.
+
+Solution: Write a shell script that looks like this
+<code>
+#!/bin/bash
+
+# Run your Relion here:
+relion_refine ... (run the 3d classification here)
+
+python startool.py path/to/classification/3dclass_it025_data.star --select _rlnClassNumber=1 --write_selection path/to/classification/3dclass_it025_data_class001.star --deselect --select _rlnClassNumber=2 --write_selection path/to/classification/3dclass_it025_data_class002.star --deselect --select _rlnClassNumber=3 --write_selection path/to/classification/3dclass_it025_data_class003.star --deselect --select _rlnClassNumber=4 --write_selection path/to/classification/3dclass_it025_data_class004.star 
+
+# Run the refinements here using the new inputs:
+relion_refine ...
+</code>
+
+The only disadvantage here is that particles might need to be regrouped prior to 3D refinement if the number of particles is rather low. Unfortunately I did not come across a way of regrouping particles with Relion on the command line. 
+
 ### Split data by defocus
 
 ### Make batches of data
