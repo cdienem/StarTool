@@ -23,7 +23,6 @@ class StarTool:
 		
 
 	def createDB(self, obj, fi=""):
-		#this is a dummy method that will take over some functionality of __init__ 
 		# Creates a DB (either memory or as a file)
 		if obj == "mem":
 			self.db = sqlite3.connect(':memory:')
@@ -38,8 +37,11 @@ class StarTool:
 			self.STARTABLES[fi] = []
 			for t in tables:
 				self.STARTABLES[fi].append(t[0])
-		self.db.create_function("REGEXP", 2, self.regexp)
-		self.db.create_function('replace',3,self.preg_replace)
+		# register some user made sqlite functions here
+		self.db.create_function("REGEXP", 2, self.sqlite_regexp)
+		self.db.create_function('replace',3,self.sqlite_preg_replace)
+		self.db.create_function('power',2,self.sqlite_power)
+		self.db.create_function('root',2,self.sqlite_root)
 
 	def star2db(self, starfilename):
 	# Reads the star file and saves it as a table in the DB
@@ -188,14 +190,22 @@ class StarTool:
 			self.CURSOR.execute(q)
 			self.db.commit()
 
-	def regexp(self, expr, item):
+	def sqlite_regexp(self, expr, item):
 	# Python regex implementation for SQLite
 		reg = re.compile(expr)
 		return reg.search(str(item)) is not None
 
-	def preg_replace(self, string, pattern, replace):
+	def sqlite_preg_replace(self, string, pattern, replace):
 	# Python preg_replace implementation for SQLite
 		return re.sub(pattern, replace, string)
+
+	def sqlite_power(self, a, b):
+	# power implementation for sqlite
+		return pow(a,b)	
+
+	def sqlite_root(self, a, b):
+	# power implementation for sqlite
+		return pow(a,1/float(b))	
 
 	def getTables(self):
 		self.CURSOR.execute("SELECT name FROM sqlite_master WHERE type='table';")
@@ -508,7 +518,10 @@ class StarTool:
 		elif operator == "*":
 			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" * \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		elif operator == "**":
-			pass
+			# power implementation
+			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = power("+a+" , "+b+") WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+		elif operator == "//":
+			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = root("+a+" , "+b+") WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		pass
 
 

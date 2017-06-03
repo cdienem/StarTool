@@ -440,11 +440,6 @@ if hasattr(args, "ordered_args"):
 # Bugs:
 
 # Todo:
-# - implement math functions (simple operations with columns like **, / + -)
-#     > pow missing
-#
-# - update readme with HTML
-# - ! in silent mode use writef instead of write
 
 # Notes:
 # > replace_regex: the stupid case of someone replacing a string into a float field?
