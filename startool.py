@@ -440,6 +440,10 @@ if hasattr(args, "ordered_args"):
 # Bugs:
 
 # Todo:
+# > data type handling INT vs FLOAT when reading starfiles
+# > Proper escaping for all SQLite queries
+# > complete exception handling in the main program
+# > refactor STLib
 
 # Notes:
 # > replace_regex: the stupid case of someone replacing a string into a float field?
