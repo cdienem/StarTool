@@ -336,7 +336,7 @@ python startool.py micrographs_ctf.star --select _rlnDefocusU\<=17000 --write_se
 *Scenario:* You have redone CTF estimation using a program that performs better thatn your initial method and you want to replace the defocus values in your particle STAR file with the new ones.
 
 ### Recenter particles for re-extraction
-*Scenario:* You still work with a verion of relion that cannot recenter particles automatically for re-extraction and you want to recenter refined particles according to their new origin values.
+*Scenario:* You still work with a version of Relion that cannot re-center particles automatically for re-extraction and you want to re-center refined particles according to their new origin values.
 
 *Solution:*
 ```bash
