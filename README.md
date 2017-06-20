@@ -337,6 +337,10 @@ python startool.py micrographs_ctf.star --select _rlnDefocusU\<=17000 --write_se
 
 ### Recenter particles for re-extraction
 
+```bash
+python startool.py data.star --math _rlnCoordinateX=_rlnCoordinateX-_rlnOriginX --math _rlnCoordinateY=_rlnCoordinateY-_rlnOriginY --write data_recenter.star
+```
+
 ### Split data files into batches per micrographs for re-extraction
 
 
