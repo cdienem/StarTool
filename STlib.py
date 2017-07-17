@@ -130,6 +130,15 @@ class StarTool:
 		    sys.stdout.write(text)
 		    sys.stdout.flush()
 
+	def getType(self, piece):
+		# returns the data type of the piece given
+		if type(piece) == float:
+			return "REAL"
+		elif type(piece) == int:
+			return "INTEGER"
+		else:
+			return "TEXT"
+
 
 	def makeTable(self, starfilename, name, labels, data):
 	# Creates the given table and fills it with data (overrides existing ones)
@@ -138,13 +147,8 @@ class StarTool:
 		tname = fname[0]+"_"+name
 		self.STARTABLES[starfilename].append(tname)
 		# go through first row and determine data types
-		# removed performance bug here
 		for i, field in enumerate(data[0]):
-			if self.isReal(field):
-				labels[i] += " REAL"
-			else:
-				labels[i] += " TEXT"
-		
+			labels[i] += " "+self.getType(field)
 		# Join the labels and datatypes
 		head = ",".join(labels)
 		self.CURSOR.execute("CREATE TABLE IF NOT EXISTS \""+tname+"\"("+head+")")
@@ -153,14 +157,6 @@ class StarTool:
 		for row in data:
 			self.CURSOR.execute("INSERT INTO \""+tname+"\" VALUES ("+number+")",row)
 		self.db.commit()
-
-	def isReal(self, value):
-	# Checks if the string read from a star file is actually a float value
-		try:
-			float(value)
-			return True
-		except ValueError:
-			return False
 
 	def showTable(self):
 	# Simple debugging method to dump the content of a table
