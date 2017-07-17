@@ -438,14 +438,15 @@ if hasattr(args, "ordered_args"):
 
 			
 # Bugs:
+# > Replacing in Float/Integer fields does not work with SQLite... (?)
 
 # Todo:
-# > data type handling INT vs FLOAT when reading starfiles
+# > data type handling INT vs FLOAT when reading starfiles -> also see the replace issues
 # > Proper escaping for all SQLite queries
 # > complete exception handling in the main program
 # > refactor STLib
 
 # Notes:
-# > replace_regex: the stupid case of someone replacing a string into a float field?
-# > replace_star might be slow for large data sets
+# > replace_regex: the stupid case of someone replacing a string into a float field? HAHAHa... see above
+# > replace_star might be slow for large data sets -> its fine actually
 
