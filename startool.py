@@ -2,7 +2,7 @@
 import argparse, sys, os.path, re
 import STlib
 
-version="1.2"
+version="1.2.1"
 
 
 
