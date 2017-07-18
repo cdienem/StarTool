@@ -217,6 +217,8 @@ Replaces all values of the specified column matching the 'search' pattern with '
 
 Example: `--replace_regex _rlnLabel='\.star$'%'\.sun'` will change all _rlnLabel that end on '.star' to an ending of '.sun'.
 
+Please note that regular expression replacement only works in text based columns.
+
 <a name="replace_star"><pre><b>--replace_star _rlnLabel=reference.star:_rlnReferenceA[variationA],_rlnReferenceB</b></pre></a>
 
 Replaces a subset of date with values from reference.star based on matching conditions with reference.star. reference.star should only have one data table. The variation value '`[x]`' is optional and will only be interpreted for numerical columns (like coordinates, defocus etc.). Reference STAR files will be loaded temporarily and do not have to be loaded at the program start up.
