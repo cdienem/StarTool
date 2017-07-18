@@ -219,7 +219,9 @@ Example: `--replace_regex _rlnLabel='\.star$'%'\.sun'` will change all _rlnLabel
 
 <a name="replace_star"><pre><b>--replace_star _rlnLabel=reference.star:_rlnReferenceA[variationA],_rlnReferenceB</b></pre></a>
 
-Replaces a subset of date with values from reference.star based on matching conditions with reference.star. reference.star should only have one data table. The variation value '`[x]`' is optional and will only be interpreted for numerical columns (like coordinates, defocus etc.). Reference STAR files will be loaded temporarily and do not have to be loaded at the program start up. 
+Replaces a subset of date with values from reference.star based on matching conditions with reference.star. reference.star should only have one data table. The variation value '`[x]`' is optional and will only be interpreted for numerical columns (like coordinates, defocus etc.). Reference STAR files will be loaded temporarily and do not have to be loaded at the program start up.
+
+Please note that this operation can take a while when used on large datasets and multiple matching criteria.
 
 Example: `--replace_star _rlnImagename=reference.star:_rlnMicrographName,_rlnCoordinateX[10],_rlnCoordinateY[10]` will replace _rlnImageName of the current data by the values from reference.star where _rlnMicrographName match and where _rlnCoordinateX/Y also match within 10 px variation.
 
@@ -335,6 +337,12 @@ python startool.py micrographs_ctf.star --select _rlnDefocusU\<=17000 --write_se
 
 *Scenario:* You have redone CTF estimation using a program that performs better thatn your initial method and you want to replace the defocus values in your particle STAR file with the new ones.
 
+*Solution:*
+```bash
+python startool.py data.star --replace_star _rlnDefocusU=better_ctf.star:_rlnMicrographName,_rlnCoordinateX,_rlnCoordinateY --replace_star _rlnDefocusV=better_ctf.star:_rlnMicrographName,_rlnCoordinateX,_rlnCoordinateY --write data_better_ctf.star
+```
+This will copy defocus values from better_ctf.star based on exactly matching micrograph name and particle coordinates.
+
 ### Recenter particles for re-extraction
 *Scenario:* You still work with a version of Relion that cannot re-center particles automatically for re-extraction and you want to re-center refined particles according to their new origin values.
 
@@ -343,6 +351,13 @@ python startool.py micrographs_ctf.star --select _rlnDefocusU\<=17000 --write_se
 python startool.py data.star --math _rlnCoordinateX=_rlnCoordinateX-_rlnOriginX --math _rlnCoordinateY=_rlnCoordinateY-_rlnOriginY --write data_recenter.star
 ```
 
-### Split data files into batches per micrographs for re-extraction
+### Split data files into batches per micrograph
 
 
+*Scenario:* You want to split your particle STAR file into micrograph batches.
+
+*Solution:*
+```bash
+python startool.py data.star --split_by _rlnMicrographName
+```
+This will create a lot of files containing particles per micrographs.
