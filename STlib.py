@@ -280,7 +280,7 @@ class StarTool:
 		# Retrieve the tablename of the reference star file
 		reftable = self.STARTABLES[starfile][0]
 		# Prepare query
-		q = "SELECT * FROM ? AS t1 WHERE EXISTS (SELECT * FROM "+reftable+" AS t2 WHERE 1"
+		q = "SELECT * FROM ? AS t1 WHERE EXISTS (SELECT * FROM \""+reftable+"\" AS t2 WHERE 1"
 		# Go through the options
 		for option in opts:
 			# Exclude the ignored ones
