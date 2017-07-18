@@ -15,7 +15,9 @@ class store_ordered(argparse.Action):
         previous.append((self.dest, values))
         setattr(namespace, 'ordered_args', previous)
 
-parser = argparse.ArgumentParser(prog="startool", description="Swiss army knife for editing star files", epilog="t")
+parser = argparse.ArgumentParser(prog="startool", 
+								description="Swiss army knife for editing star files",
+								epilog="t")
 
 parser.add_argument('inputfile', action='store')
 
@@ -27,12 +29,17 @@ parser.add_argument('--silent', action=store_ordered, nargs='?', metavar="None")
 #Selectors
 parser.add_argument('--use', action=store_ordered, metavar="tablename")
 
+
 parser.add_argument('--select', action=store_ordered, metavar="_rlnLabel\><=value")
+
 parser.add_argument('--select_regex', action=store_ordered, metavar="_rlnlabel='regular expression'")
-parser.add_argument('--select_star', action=store_ordered, metavar="starfile.star:_rlnLabelA[variationA],_rlnLabelB")
+
+parser.add_argument('--select_star', action=store_ordered, metavar="starfile.star:_rlnLabelA"+u"\u27e6"+"variationA"+u"\u27e7"+",_rlnLabelB")
+
 parser.add_argument('--subset', action=store_ordered, metavar="start:end")
 
 parser.add_argument('--release', action=store_ordered, nargs='?', metavar="None")
+
 parser.add_argument('--deselect', action=store_ordered, nargs='?', metavar="None")
 
 #Sorters
@@ -52,7 +59,7 @@ parser.add_argument('--rename_table', action=store_ordered, metavar="new_tablena
 #Local Editors
 parser.add_argument('--replace', action=store_ordered, metavar="_rlnLabel=value")
 parser.add_argument('--replace_regex', action=store_ordered, metavar="_rlnLabel='search'%'replace'")
-parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star:_rlnRefLabelA[variationA],_rlnRefLabelB[variationB]")
+parser.add_argument('--replace_star', action=store_ordered, metavar="_rlnLabel=starfile.star:_rlnRefLabelA"+u"\u27e6"+"variationA"+u"\u27e7"+",_rlnRefLabelB"+u"\u27e6"+"variationB"+u"\u27e7"+"")
 
 # Deletes stuff from the local selection
 parser.add_argument('--delete', action=store_ordered, nargs='?', metavar="None")
