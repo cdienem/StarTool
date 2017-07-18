@@ -154,13 +154,16 @@ if hasattr(args, "ordered_args"):
 		elif cmd[0] == "merge":
 			# starfilename.star
 			if os.path.isfile(cmd[1]):
-				stardb.out( "The file '"+str(cmd[1])+"' already exists.")
-				ans = raw_input("Do you want to override (y/n)?")
-				if ans == "y":
-					stardb.out( "Overriding the file.")
-					stardb.mergeStar(cmd[1])
+				if stardb.isSilent() != True:
+					stardb.out( "The file '"+str(cmd[1])+"' already exists.")
+					ans = raw_input("Do you want to override (y/n)?")
+					if ans == "y":
+						stardb.out( "Overriding the file.")
+						stardb.mergeStar(cmd[1])
+					else:
+						stardb.out( "Not overriding.")
 				else:
-					stardb.out( "Not overriding.")
+					stardb.mergeStar(cmd[1])
 			else:
 				stardb.mergeStar(cmd[1])
 
@@ -179,10 +182,10 @@ if hasattr(args, "ordered_args"):
 
 		elif cmd[0] == "debug":
 			# prints some debug information
-
 			stardb.debug()
 
 		elif cmd[0] == "split_by":
+			# _rlnLabel:10 || _rlnlabel
 			c = cmd[1].split(":")
 			if len(c) == 1:
 				batch = -1;
@@ -297,37 +300,26 @@ if hasattr(args, "ordered_args"):
 					options = cmd[1].split(":")[1].split(",")
 					if os.path.isfile(file):
 						# Load the reference STAR file
-						# EXCEPTION HANDLING!
 						stardb.star2db(file)
+						# check if there is a single table
 						if stardb.getTableNum(file) == 1:
-							
-							pass
-
+							# extract variations (if present)
+							for i in range(len(options)):
+								o = options[i].split("[")
+								if len(o) == 1:
+									options[i] = [o[0],0]
+								else:
+									try:
+										num = float(o[1].replace("]",""))
+										options[i] = [o[0],num]
+									except ValueError:
+										stardb.out("The variation value must be a number.")
+										options[i] = None
+							stardb.select_star(file, options)
 						else:
-							pass
-						# check number of tables
-
-
-						# extract variations (if present)
-						for i in range(len(options)):
-							o = options[i].split("[")
-							if len(o) == 1:
-								options[i] = [o[0],0]
-							else:
-								try:
-									num = float(o[1].replace("]",""))
-									options[i] = [o[0],num]
-								except ValueError:
-									stardb.out("The variation value must be a number.")
-									options[i] = None
-						print file
-						print options
-						stardb.select_star(file, options)
+							stardb.out("The reference STAR file should only contain a single table.")			
 					else:
 						stardb.out("The reference file "+str(file)+" does not exist.")
-					
-
-
 
 				elif cmd[0] == "replace":
 					# _rlnLabel=valueABC
@@ -358,36 +350,31 @@ if hasattr(args, "ordered_args"):
 							stardb.star2db(file)
 							if stardb.getTableNum(file) == 1:
 								
-								pass
-
+								# extract variations (if present)
+								for i in range(len(options)):
+									o = options[i].split("[")
+									if len(o) == 1:
+										options[i] = [o[0],0]
+									else:
+										try:
+											num = float(o[1].replace("]",""))
+											options[i] = [o[0],num]
+										except ValueError:
+											stardb.out("The variation value must be a number.")
+											options[i] = None
+								stardb.replace_star(label, file, options)
 							else:
-								pass
-							# check number of tables
+								stardb.out("The reference file "+str(file)+" does not exist.")
 
-
-							# extract variations (if present)
-							for i in range(len(options)):
-								o = options[i].split("[")
-								if len(o) == 1:
-									options[i] = [o[0],0]
-								else:
-									try:
-										num = float(o[1].replace("]",""))
-										options[i] = [o[0],num]
-									except ValueError:
-										stardb.out("The variation value must be a number.")
-										options[i] = None
-							stardb.replace_star(label, file, options)
 						else:
-							stardb.out("The reference file "+str(file)+" does not exist.")
+							stardb.out("The reference STAR file should only contain a single table.")								
 					else:
-						stardb.out("Column does not exist.")
+						stardb.out("Column "+str(label)+" does not exist.")
 
 				elif cmd[0] == "delete":#
 					# None, calls release after execution
 					# removel of current selection
 					stardb.deleteSelection()
-					pass
 				
 				elif cmd[0] == "write_selection":
 					# outputstar.star
@@ -424,10 +411,20 @@ if hasattr(args, "ordered_args"):
 
 				elif cmd[0] == "math":
 					# rlnLabel=(number|rlnLabel)(operator)(number|rlnLabel)
-					pat = "^\_rln(.*?)=(.+?)(\/\/|\*\*|\+|\-|\*|\/)(.+)$"
+					pat = "^(_rln.*?)=(.+?)(\/\/|\*\*|\+|\-|\*|\/)(.+)$"
 					match = re.search(pat,cmd[1])
-					stardb.doMath("_rln"+match.group(1), match.group(2), match.group(3), match.group(4))
-
+					if match != None:
+						# check column existence
+						error = ""
+						for item in match.groups():
+							if item[0:4] == "_rln" and item not in stardb.getLabels():
+								error += str(item)+" does not exist.\n"
+						if error == "":
+							stardb.doMath(match.group(1), match.group(2), match.group(3), match.group(4))
+						else:
+							stardb.out(error)
+					else:
+						stardb.out("Your input is malformed (--math).")
 			else:
 				stardb.out( "You must select a table with --use before you can proceed.")
 
@@ -441,14 +438,11 @@ if hasattr(args, "ordered_args"):
 # > Replacing in Float/Integer fields does not work with SQLite... (?)
 
 # Todo:
-# > data type handling INT vs FLOAT when reading starfiles -> also see the replace issues
 # > Proper escaping for all SQLite queries
-# > complete exception handling in the main program
 # > refactor STLib
+# > Finish readme
 
 
 
 # Notes:
-# > replace_regex: the stupid case of someone replacing a string into a float field? HAHAHa... see above
-# > replace_star might be slow for large data sets -> its fine actually
 
