@@ -132,12 +132,20 @@ class StarTool:
 
 	def getType(self, piece):
 		# returns the data type of the piece given
-		if type(piece) == float:
-			return "REAL"
-		elif type(piece) == int:
-			return "INTEGER"
+		# checks if this could be a float
+		if "." in piece:
+			try:
+				float(piece)
+				return "REAL"
+			except ValueError:
+				return "TEXT"
+		# still might be int
 		else:
-			return "TEXT"
+			try:
+				int(piece)
+				return "INTEGER"
+			except ValueError:
+				return "TEXT"
 
 
 	def makeTable(self, starfilename, name, labels, data):
@@ -255,7 +263,15 @@ class StarTool:
 			# Sets a dummy selection to a specific column
 			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" != ''")
 		else:
-			# Escape strings with 
+			# Escape strings with
+
+			## funnily, this is always true as commands from cmd are alway interpreted as strings?
+			## but it worked before... how about the proper data types now?
+			## seems fucked up in the table already
+
+			self.CURSOR.execute("SELECT typeof("+col+") FROM "+self.getCurrent())
+			print str(self.CURSOR.fetchone())
+
 			if type(pattern) == str or type(pattern) == unicode:
 				pattern = "\""+pattern+"\"" # necessary for string patterns to be quoted in the query
 			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" "+mod+" "+str(pattern))
