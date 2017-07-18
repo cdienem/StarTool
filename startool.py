@@ -15,7 +15,7 @@ class store_ordered(argparse.Action):
         previous.append((self.dest, values))
         setattr(namespace, 'ordered_args', previous)
 
-parser = argparse.ArgumentParser(prog="startool", description="Swiss army knife for editing star files", epilog="")
+parser = argparse.ArgumentParser(prog="startool", description="Swiss army knife for editing star files", epilog="t")
 
 parser.add_argument('inputfile', action='store')
 
@@ -439,8 +439,7 @@ if hasattr(args, "ordered_args"):
 
 # Todo:
 # > Proper escaping for all SQLite queries
-# > refactor STLib
-# > Finish readme
+# > refactor STLib to separate STAR file parser, accessory and sqlite functions in different classes.
 
 
 
