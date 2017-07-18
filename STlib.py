@@ -267,10 +267,6 @@ class StarTool:
 
 			## funnily, this is always true as commands from cmd are alway interpreted as strings?
 			## but it worked before... how about the proper data types now?
-			## seems fucked up in the table already
-
-			self.CURSOR.execute("SELECT typeof("+col+") FROM "+self.getCurrent())
-			print str(self.CURSOR.fetchone())
 
 			if type(pattern) == str or type(pattern) == unicode:
 				pattern = "\""+pattern+"\"" # necessary for string patterns to be quoted in the query
