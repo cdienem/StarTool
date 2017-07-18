@@ -230,7 +230,10 @@ class StarTool:
 		return self.CURRENT
 
 	def debug(self):
-		print "CURRENT: "+self.CURRENT
+		if self.CURRENT == "":
+			print "CURRENT: NONE"
+		else:
+			print "CURRENT: "+self.CURRENT
 		#print self.QUERY
 		print "Query: "+self.assembleSelector()
 		print "STARTABLES: "
