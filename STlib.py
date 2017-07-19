@@ -1,6 +1,19 @@
 #!/bin/python
 import sqlite3, re, sys, time
 
+# Furure refactoring of libaries
+#class StarParse
+# -> reading starfiles
+# -> writing starfiles
+# -> handles dictionary (files = {table[label],[type],[data]})
+
+#class Star2SQLite
+# -> can load a star file into an sqlite database
+# -> create a table that has an inventory of the stored starfiles (table ID, table name, starfilename)
+
+#class StarTool
+# -> Interface that can be used on the SQLite database created by Star2SQLite
+
 class StarTool:
 	# This stores the subqueries from all called select statements
 	QUERY = []

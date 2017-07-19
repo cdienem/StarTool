@@ -163,14 +163,6 @@ else
 	echo "CHECK FAILED --rename_table"
 fi
 
-#--delete_table -> check info
-
-
-
-
-
-
-
 #--replace
 
 if $(python startool.py testfiles/2test_startup.star --replace _rlnImageName=Hallo --show | tail -4 | grep -q "Hallo"); then
@@ -210,8 +202,25 @@ else
 fi
 
 
+#--math
+
+if ! $(python startool.py testfiles/2test_startup.star --math _rlnAngleTilt=_rlnAngleTilt+1 --show | grep -q "48.0" ); then
+	echo "CHECK OK --math"
+else
+	echo "CHECK FAILED --math"
+fi
+
+
+# --delete_table
+
 #--merge
 
+#--query
 
+#--silent
 
-#--math
+#--split_by
+
+#--writef
+
+#--writef_selection

@@ -2,7 +2,7 @@
 import argparse, sys, os.path, re
 import STlib
 
-version="1.2.1"
+version="1.3"
 
 
 
@@ -434,21 +434,3 @@ if hasattr(args, "ordered_args"):
 						stardb.out("Your input is malformed (--math).")
 			else:
 				stardb.out( "You must select a table with --use before you can proceed.")
-
-
-			
-
-
-
-			
-# Bugs:
-# > Replacing in Float/Integer fields does not work with SQLite... (?)
-
-# Todo:
-
-# > refactor STLib to separate STAR file parser, accessory and sqlite functions in different classes?
-
-
-
-# Notes:
-
