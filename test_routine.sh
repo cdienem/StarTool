@@ -3,6 +3,8 @@
 # this will be a test routine script to test basal functionality of the startool
 # it only tests for certain expected outputs
 
+
+
 echo "Starting StarTool unit test..."
 
 # load std file and test --debug first
@@ -13,9 +15,6 @@ else
 	echo "CHECK FAILED --debug"
 	exit
 fi
-
-# check different types of files to load
-
 
 
 #--info
@@ -113,32 +112,106 @@ else
 	echo "CHECK FAILED --deselect"
 fi
 
+
 #--subset
+
+if $(python startool.py testfiles/2test_startup.star --subset 1:1 --show | grep -q "000001@references/ref_projections.mrcs") && ! $(python startool.py testfiles/2test_startup.star --subset 1:1 --show | grep -q "000002@references/ref_projections.mrcs"); then
+	echo "CHECK OK --subset"
+else
+	echo "CHECK FAILED --subset"
+fi
 
 #--sort -> check with subset
 
-#--tros -> check with subset
+if $(python startool.py testfiles/2test_startup.star --sort _rlnAngleRot --subset 1:1 --show | grep -q "000001@references/ref_projections.mrcs") && $(python startool.py testfiles/2test_startup.star --tros _rlnAngleRot --tros _rlnAngleTilt --subset 1:1 --show | grep -q "000013@references/ref_projections.mrcs"); then
+	echo "CHECK OK --sort/--tros"
+else
+	echo "CHECK FAILED --sort/--tros"
+fi
+
 
 #--add_col -> check info
 
+if $(python startool.py testfiles/2test_startup.star --add_col _rlnTest --info | tail -4 | grep -q "_rlnTest"); then
+	echo "CHECK OK --add_col"
+else
+	echo "CHECK FAILED --add_col"
+fi
+
 #--delete_col -> check info
+
+if ! $(python startool.py testfiles/2test_startup.star --delete_col _rlnImageName --info | tail -3 | grep -q "_rlnImageName"); then
+	echo "CHECK OK --delete_col"
+else
+	echo "CHECK FAILED --delete_col"
+fi
+
 
 #--rename_col -> check info
 
-#--delete_table -> check info
+if $(python startool.py testfiles/2test_startup.star --rename_col _rlnImageName=_rlnTest --info | tail -4 | grep -q "_rlnTest"); then
+	echo "CHECK OK --rename_col"
+else
+	echo "CHECK FAILED --rename_col"
+fi
 
 #--rename_table -> check info
+
+if $(python startool.py testfiles/2test_startup.star --rename_table new_table_name --info | tail -4 | grep -q "new_table_name"); then
+	echo "CHECK OK --rename_table"
+else
+	echo "CHECK FAILED --rename_table"
+fi
+
+#--delete_table -> check info
+
+
+
+
 
 
 
 #--replace
 
+if $(python startool.py testfiles/2test_startup.star --replace _rlnImageName=Hallo --show | tail -4 | grep -q "Hallo"); then
+	echo "CHECK OK --replace"
+else
+	echo "CHECK FAILED --replace"
+fi
+
 #--replace_regex
+
+if $(python startool.py testfiles/2test_startup.star --replace_regex _rlnImageName='\d@'%'ABCabc' --show | tail -4 | grep -q "ABCabc"); then
+	echo "CHECK OK --replace_regex"
+else
+	echo "CHECK FAILED --replace_regex"
+fi
 
 #--replace_star
 
+if [ $(python startool.py testfiles/2test_startup.star --replace_star _rlnImageName=testfiles/2test_reference.star:_rlnAngleRot,_rlnAngleTilt --show | grep ".sun" | wc -l) -eq 2 ]; then
+	echo "CHECK OK --replace_star (no variation)"
+else
+	echo "CHECK FAILED --replace_regex (no variation)"
+fi
+
+if [ $(python startool.py testfiles/2test_startup.star --replace_star _rlnImageName=testfiles/2test_reference.star:_rlnAngleRot[2],_rlnAngleTilt --show | grep ".sun" | wc -l) -eq 3 ]; then
+	echo "CHECK OK --replace_star (with variation)"
+else
+	echo "CHECK FAILED --replace_regex (with variation)"
+fi
+
 #--delete
 
+if ! $(python startool.py testfiles/2test_startup.star --select _rlnImageName="000013@references/ref_projections.mrcs" --delete --show | tail -5 | grep -q "000013@references/ref_projections.mrcs" ); then
+	echo "CHECK OK --delete"
+else
+	echo "CHECK FAILED --delete"
+fi
+
+
 #--merge
+
+
 
 #--math
