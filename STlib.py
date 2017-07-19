@@ -264,7 +264,7 @@ class StarTool:
 	def select(self, col , mod, pattern):
 		if pattern == "*":
 			# Sets a dummy selection to a specific column
-			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" != ''")
+			self.QUERY.append("SELECT * FROM ? WHERE "+col+" != ''")
 		else:
 			# Escape strings with
 
@@ -273,7 +273,7 @@ class StarTool:
 
 			if type(pattern) == str or type(pattern) == unicode:
 				pattern = "\""+pattern+"\"" # necessary for string patterns to be quoted in the query
-			self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" "+mod+" "+str(pattern))
+			self.QUERY.append("SELECT * FROM ? WHERE "+col+" "+mod+" "+str(pattern))
 
 	def select_regex(self, col, pattern):
 		self.QUERY.append("SELECT * FROM ? WHERE \""+col+"\" REGEXP '"+pattern+"'")
@@ -469,9 +469,7 @@ class StarTool:
 		reftable = self.STARTABLES[starfile][0]
 		# Prepare query
 
-		# UPDATE t1.col = (select t2.col FROM t2 AS t2 WHERE t2.col = t1.col)
-
-		q1 = "UPDATE \""+self.CURRENT+"\" SET "+col+" = (SELECT "+reftable+"."+col+" FROM "+reftable+" WHERE 1"
+		q1 = "UPDATE \""+self.CURRENT+"\" SET "+col+" = (SELECT \""+reftable+"\"."+col+" FROM \""+reftable+"\" WHERE 1"
 		q2 = " WHERE EXISTS (SELECT * FROM \""+reftable+"\" WHERE 1"
 		# Go through the options
 		for option in opts:
@@ -479,20 +477,18 @@ class StarTool:
 			if option != None:
 				if option[1] != 0:
 					#Testing existensce of such parameters in the other table
-					q1 += " AND "+reftable+"."+option[0]+" BETWEEN "+self.CURRENT+"."+option[0]+"-"+str(option[1])+" AND "+self.CURRENT+"."+option[0]+"+"+str(option[1])+"" 
-					q2 += " AND "+reftable+"."+option[0]+" BETWEEN "+self.CURRENT+"."+option[0]+"-"+str(option[1])+" AND "+self.CURRENT+"."+option[0]+"+"+str(option[1])+"" 
-					pass
+					q1 += " AND \""+reftable+"\"."+option[0]+" BETWEEN \""+self.CURRENT+"\"."+option[0]+"-"+str(option[1])+" AND \""+self.CURRENT+"\"."+option[0]+"+"+str(option[1])+"" 
+					q2 += " AND \""+reftable+"\"."+option[0]+" BETWEEN \""+self.CURRENT+"\"."+option[0]+"-"+str(option[1])+" AND \""+self.CURRENT+"\"."+option[0]+"+"+str(option[1])+"" 
 				else:
-					q1 += " AND "+reftable+"."+option[0]+"="+self.CURRENT+"."+option[0]+""
-					q2 += " AND "+reftable+"."+option[0]+"="+self.CURRENT+"."+option[0]+""
-					pass
+					q1 += " AND \""+reftable+"\"."+option[0]+"=\""+self.CURRENT+"\"."+option[0]+""
+					q2 += " AND \""+reftable+"\"."+option[0]+"=\""+self.CURRENT+"\"."+option[0]+""
 				
 		# Append to selector
 		q1 += ")"
 		q2 += ")"
 		
 		query = q1+q2
-		query += " AND "+self.CURRENT+".ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))"
+		query += " AND \""+self.CURRENT+"\".ROWID IN (SELECT ROWID FROM ("+self.assembleSelector()+"))"
 		print query
 		self.CURSOR.execute(query)
 		self.db.commit()
@@ -509,6 +505,7 @@ class StarTool:
 		q = "DELETE FROM \""+self.CURRENT+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))"
 		self.CURSOR.execute(q)
 		self.db.commit()
+		self.deselect()
 
 	def doMath(self, field, a, operator, b):
 		# a and b can be values (number) or field names of the current table in use
