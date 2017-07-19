@@ -445,8 +445,8 @@ if hasattr(args, "ordered_args"):
 # > Replacing in Float/Integer fields does not work with SQLite... (?)
 
 # Todo:
-# > Proper escaping for all SQLite queries
-# > refactor STLib to separate STAR file parser, accessory and sqlite functions in different classes.
+
+# > refactor STLib to separate STAR file parser, accessory and sqlite functions in different classes?
 
 
 
