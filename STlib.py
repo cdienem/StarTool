@@ -518,18 +518,18 @@ class StarTool:
 		# root: will be done as fractional pow
 		# math is done on the current selection	
 		if operator == "+":
-			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" + \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+field+"\" = \""+a+"\" + \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		elif operator == "-":
-			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" - \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+field+"\" = \""+a+"\" - \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		elif operator == "/":
-			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" / \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+field+"\" = \""+a+"\" / \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		elif operator == "*":
-			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = \""+a+"\" * \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+field+"\" = \""+a+"\" * \""+b+"\" WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		elif operator == "**":
 			# power implementation
-			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = power("+a+" , "+b+") WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+field+"\" = power("+a+" , "+b+") WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		elif operator == "//":
-			self.CURSOR.execute("UPDATE "+self.CURRENT+" SET \""+field+"\" = root("+a+" , "+b+") WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
+			self.CURSOR.execute("UPDATE \""+self.CURRENT+"\" SET \""+field+"\" = root("+a+" , "+b+") WHERE ROWID in (SELECT ROWID FROM ("+self.assembleSelector()+"))")
 		pass
 
 
