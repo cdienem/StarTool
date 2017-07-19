@@ -10,7 +10,7 @@ _rlnImageName #3
     0.000000    90.000000 000003@references/ref_projections.mrcs 
     0.000000   135.000000 000004@references/ref_projections.mrcs 
    45.000000    45.000000 000005@references/ref_projections.mrcs 
-   45.000000    90.000000 000006@references/ref_projections.mrcs 
+   47.000000    90.000000 000006@references/ref_projections.mrcs 
    45.000000   135.000000 000007@references/ref_projections.mrcs 
    90.000000    45.000000 000008@references/ref_projections.mrcs 
    90.000000    90.000000 000009@references/ref_projections.mrcs 
