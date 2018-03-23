@@ -48,8 +48,8 @@ class StarTool:
 			tables = self.CURSOR.fetchall()
 			ret = []
 			self.STARTABLES[fi] = []
-			for t in tables:
-				self.STARTABLES[fi].append(t[0])
+			for t in tables[0]:
+				self.STARTABLES[fi].append(t)
 		# register some user made sqlite functions here
 		self.db.create_function("REGEXP", 2, self.sqlite_regexp)
 		self.db.create_function('replace',3,self.sqlite_preg_replace)

@@ -444,4 +444,6 @@ if hasattr(args, "ordered_args"):
 
 # - create merge_f function
 # - local DB stuff still does not work properly...
+#    -> does not insert new data into local db?
+#    -> need to keep the STARTABLES in the database as well...
 
