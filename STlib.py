@@ -42,7 +42,7 @@ class StarTool:
 			self.CURSOR = self.db.cursor()
 		else:			
 			self.db = sqlite3.connect(obj)
-			self.CURSOR = seld.db.cursor()
+			self.CURSOR = self.db.cursor()
 			# Create STARTABLES if there is a file already
 			self.CURSOR.execute("SELECT name FROM sqlite_master WHERE type='table';")
 			tables = self.CURSOR.fetchall()
@@ -447,10 +447,10 @@ class StarTool:
 
 		# create tmp table, put all data there
 		# hijack write_selection to write this table
-		self.CURSOR.execute("CREATE TEMPORARY TABLE tmp_"+tab+"("+",".join(labels_intersect)+")")
+		self.CURSOR.execute("CREATE TEMPORARY TABLE 'tmp_"+tab+"'("+",".join(labels_intersect)+")")
 		self.db.commit()
 		for t in tables:
-			self.CURSOR.execute("INSERT INTO tmp_"+tab+" SELECT "+",".join(labels_intersect)+" FROM \""+t+"\"")
+			self.CURSOR.execute("INSERT INTO 'tmp_"+tab+"' SELECT "+",".join(labels_intersect)+" FROM \""+t+"\"")
 			self.db.commit()
 		bak_cur = self.CURRENT
 		bak_que = self.QUERY
@@ -553,6 +553,7 @@ class StarTool:
 
 
 	def info(self):
+		print self.STARTABLES
 		for t in self.STARTABLES.keys():
 			print t
 			for table in self.STARTABLES[t]:

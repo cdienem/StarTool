@@ -159,8 +159,10 @@ if hasattr(args, "ordered_args"):
 			stardb.deselect()
 
 		elif cmd[0] == "merge":
+# MAKE A merge_f FUNCTION AS WELL TO FORCE OVERRIDE WHEN MERGING
 			# starfilename.star
 			if os.path.isfile(cmd[1]):
+				stardb.mergeStar(cmd[1])
 				if stardb.isSilent() != True:
 					stardb.out( "The file '"+str(cmd[1])+"' already exists.")
 					ans = raw_input("Do you want to override (y/n)?")
@@ -434,3 +436,12 @@ if hasattr(args, "ordered_args"):
 						stardb.out("Your input is malformed (--math).")
 			else:
 				stardb.out( "You must select a table with --use before you can proceed.")
+
+
+
+
+### Todo:
+
+# - create merge_f function
+# - local DB stuff still does not work properly...
+
