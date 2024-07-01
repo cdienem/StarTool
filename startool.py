@@ -1,4 +1,4 @@
-#!/bin/python
+#!/bin/python2
 import argparse, sys, os.path, re
 import STlib
 
